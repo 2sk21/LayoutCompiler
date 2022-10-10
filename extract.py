@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import csv
 import re
+import argparse
 
 def getSensorFileName(sensorsX, setCounter):
     className = sensorsX.attrib['class']
@@ -19,10 +20,10 @@ def getSensorFileName(sensorsX, setCounter):
     else:
         return sensorType + '_' + busName + '_' + str(setCounter) + ".csv"
 
-def extractSensors(sensorsX, sensorSetCounter):
+def extractSensors(sensorsX, sensorSetCounter, outputDir):
     sensorFileName = getSensorFileName(sensorsX, sensorSetCounter)
     if sensorFileName:
-        with open(sensorFileName, 'w') as outFile:
+        with open(outputDir + sensorFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
             row = [ 'class', sensorsX.attrib['class']]
             tablewriter.writerow(row)
@@ -44,13 +45,30 @@ def extractSensors(sensorsX, sensorSetCounter):
                             userName = t.text
                     tablewriter.writerow([str(systemName), str(userName), str(inverted)])
 
-def main():
-    tree = ET.parse('SampleData/test1.xml')
+def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
+    pass
+
+def main(args):
+    ifn = args.inputFile
+    tree = ET.parse(ifn)
     root = tree.getroot()
     sensorSetCounter = 0
+    turnoutSetCounter = 0
+    outputDir = args.outputDir
+    if not outputDir.endswith('/'):
+        outputDir = outputDir + '/'
     for child in root:
         if child.tag == "sensors":
             sensorSetCounter += 1
-            extractSensors(child, sensorSetCounter)
+            extractSensors(child, sensorSetCounter, outputDir)
+        elif child.tag == 'turnouts':
+            turnoutSetCounter += 1
+            extractTurnouts(child, turnoutSetCounter, outputDir)
 
-main()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
+    parser.add_argument('inputFile', type=str, help='JMRI layout description file in XML format')
+    parser.add_argument('--outputDir', type=str, default='.', help='Directory in which to write the generated CSV files')
+    args = parser.parse_args()
+    main(args)
