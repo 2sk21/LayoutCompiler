@@ -3,14 +3,14 @@ import csv
 import re
 import argparse
 
-def getSensorFileName(sensorsX, setCounter):
+def getFileName(sensorsX, setCounter, objectName):
     className = sensorsX.attrib['class']
     comps = className.split('.')
     sensorType = comps[2]
     sensorSubType = ''
     if sensorType == 'cmri':
         sensorSubType = comps[3]
-    firstSensor = sensorsX.find('sensor')
+    firstSensor = sensorsX.find(objectName)
     sn = firstSensor.find('systemName').text
     x = re.compile(r'(\S*?)\d+$')
     y = x.match(sn)
@@ -21,7 +21,7 @@ def getSensorFileName(sensorsX, setCounter):
         return sensorType + '_' + busName + '_' + str(setCounter) + ".csv"
 
 def extractSensors(sensorsX, sensorSetCounter, outputDir):
-    sensorFileName = getSensorFileName(sensorsX, sensorSetCounter)
+    sensorFileName = getFileName(sensorsX, sensorSetCounter, 'sensor')
     if sensorFileName:
         with open(outputDir + sensorFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
@@ -44,9 +44,48 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                         elif t.tag == "userName":
                             userName = t.text
                     tablewriter.writerow([str(systemName), str(userName), str(inverted)])
+    else:
+        print('Could not determine file name for sensors ' + sensorSetCounter)
 
 def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
-    pass
+    turnoutFileName = getFileName(turnoutsX, turnoutSetCounter, 'turnout')
+    if turnoutFileName:
+        with open(outputDir + turnoutFileName, 'w') as outFile:
+            tablewriter = csv.writer(outFile)
+            row = [ 'class', turnoutsX.attrib['class']]
+            tablewriter.writerow(row)
+            ops = turnoutsX.find('operations')
+            if ops != None:
+                if ops.attrib['automate'] != None:
+                    row = [ 'operations_automate', ops.attrib['automate']]
+                    tablewriter.writerow(row) 
+                for op in ops:
+                    row = [ 'operations', op.attrib['name'], op.attrib['class'], op.attrib['interval'], op.attrib['maxtries']]
+                    tablewriter.writerow(row)
+            dcs = turnoutsX.find('defaultclosedspeed')
+            if dcs != None:
+                row = [ 'defaultclosedspeed', dcs.text]
+                tablewriter.writerow(row)
+            dts = turnoutsX.find('defaultthrownspeed')
+            if dts != None:
+                row = [ 'defaultthrownspeed', dts.text]
+                tablewriter.writerow(row)
+            for turnoutX in turnoutsX:
+                if turnoutX.tag == "turnout":
+                    sn = turnoutX.find('systemName').text
+                    commentX = turnoutX.find('comment')
+                    comment = ''
+                    if commentX != None:
+                        comment = commentX.text
+                    feedback = turnoutX.attrib['feedback']
+                    sensor1 = ''
+                    if 'sensor1' in turnoutX.attrib:
+                        sensor1 = turnoutX.attrib['sensor1']
+                    sensor2 = ''
+                    if 'sensor2' in turnoutX.attrib:
+                        sensor2 = turnoutX.attrib['sensor2']
+                    row = [ 'turnout', sn, comment, feedback, sensor1, sensor2, turnoutX.attrib['inverted'], turnoutX.attrib['automate']]
+                    tablewriter.writerow(row)
 
 def main(args):
     ifn = args.inputFile
