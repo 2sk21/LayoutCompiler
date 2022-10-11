@@ -1,3 +1,8 @@
+# Author Rangachari Anand Copyright (C) 2021
+# This is free software; you can redistribute it and/or modify it under the
+# terms of version 2 of the GNU General Public License as published by the Free
+# Software Foundation.
+
 import xml.etree.ElementTree as ET
 import csv
 import re
@@ -87,12 +92,28 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
                     row = [ 'turnout', sn, comment, feedback, sensor1, sensor2, turnoutX.attrib['inverted'], turnoutX.attrib['automate']]
                     tablewriter.writerow(row)
 
+def extractLights(lightsX, lightSetCounter, outputDir):
+    lightFileName = getFileName(lightsX, lightSetCounter, 'light')
+    if lightFileName:
+        with open(outputDir + lightFileName, 'w') as outFile:
+            tablewriter = csv.writer(outFile)
+            row = [ 'class', lightsX.attrib['class']]
+            tablewriter.writerow(row)
+            for lightX in lightsX:
+                systemName = lightX.find('systemName').text
+                minIntensity = lightX.attrib['minIntensity']
+                maxIntensity = lightX.attrib['maxIntensity']
+                transitionTime = lightX.attrib['transitionTime']
+                row = [systemName, minIntensity, maxIntensity, transitionTime]
+                tablewriter.writerow(row)
+
 def main(args):
     ifn = args.inputFile
     tree = ET.parse(ifn)
     root = tree.getroot()
     sensorSetCounter = 0
     turnoutSetCounter = 0
+    lightSetCounter = 0
     outputDir = args.outputDir
     if not outputDir.endswith('/'):
         outputDir = outputDir + '/'
@@ -103,6 +124,9 @@ def main(args):
         elif child.tag == 'turnouts':
             turnoutSetCounter += 1
             extractTurnouts(child, turnoutSetCounter, outputDir)
+        elif child.tag == 'lights':
+            lightSetCounter += 1
+            extractLights(child, lightSetCounter, outputDir)
 
 
 if __name__ == '__main__':
