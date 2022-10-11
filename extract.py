@@ -123,7 +123,31 @@ def extractSignalHeads(signalHeadsX, outputDir):
                 elif child.tag == 'turnoutname':
                     row.append(('turnoutname', child.attrib['defines'], child.text))
             tablewriter.writerow(row)
-            
+
+def extractSignalMasts(signalMastsX, outputDir):
+    with open(outputDir + 'signalmasts.csv', 'w') as outFile:
+        tablewriter = csv.writer(outFile)
+        row = [ 'class', signalMastsX.attrib['class']]
+        tablewriter.writerow(row)
+        for signalMastX in signalMastsX:
+            cl = signalMastX.attrib['class']
+            systemName = ''
+            userName = ''
+            unlit='no'
+            disabledAspects = []
+            for child in signalMastX:
+                if child.tag == 'systemName':
+                    systemName = child.text
+                elif child.tag == 'userName':
+                    uuserName = child.text
+                elif child.tag == 'disabledAspects':
+                    for c in child:
+                        disabledAspects.append(c.text)
+            da = '(' + ','.join(disabledAspects) + ')'
+            row = [ cl, systemName, userName, unlit, da]
+            tablewriter.writerow(row)
+
+
 
 def main(args):
     ifn = args.inputFile
@@ -147,6 +171,8 @@ def main(args):
             extractLights(child, lightSetCounter, outputDir)
         elif child.tag == 'signalheads':
             extractSignalHeads(child, outputDir)
+        elif child.tag == 'signalmasts':
+            extractSignalMasts(child, outputDir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
