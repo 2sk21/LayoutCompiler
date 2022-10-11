@@ -107,6 +107,24 @@ def extractLights(lightsX, lightSetCounter, outputDir):
                 row = [systemName, minIntensity, maxIntensity, transitionTime]
                 tablewriter.writerow(row)
 
+def extractSignalHeads(signalHeadsX, outputDir):
+    with open(outputDir + 'signalheads.csv', 'w') as outFile:
+        tablewriter = csv.writer(outFile)
+        row = [ 'class', signalHeadsX.attrib['class']]
+        tablewriter.writerow(row)
+        for signalHeadX in signalHeadsX:
+            cl = signalHeadX.attrib['class']
+            row = [ 'class', cl]
+            for child in signalHeadX:
+                if child.tag == 'systemName':
+                    row.append(child.text)
+                elif child.tag == 'appearance':
+                    row.append(('appearance', child.attrib['defines'], child.text))
+                elif child.tag == 'turnoutname':
+                    row.append(('turnoutname', child.attrib['defines'], child.text))
+            tablewriter.writerow(row)
+            
+
 def main(args):
     ifn = args.inputFile
     tree = ET.parse(ifn)
@@ -127,7 +145,8 @@ def main(args):
         elif child.tag == 'lights':
             lightSetCounter += 1
             extractLights(child, lightSetCounter, outputDir)
-
+        elif child.tag == 'signalheads':
+            extractSignalHeads(child, outputDir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
