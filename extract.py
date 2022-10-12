@@ -147,6 +147,37 @@ def extractSignalMasts(signalMastsX, outputDir):
             row = [ cl, systemName, userName, unlit, da]
             tablewriter.writerow(row)
 
+def extractBlocks(blocksX, outputDir):
+    with open(outputDir + 'blocks.csv', 'w') as outFile:
+        tablewriter = csv.writer(outFile)
+        row = [ 'class', blocksX.attrib['class']]
+        tablewriter.writerow(row)
+        for blockX in blocksX:
+            # Block elements are present in duplicateto break circularity in the code
+            # Only the instance with the permissive child element needs to be considered
+            permissiveX = blockX.find('permissive')
+            if permissiveX != None:
+                length = blockX.attrib['length']
+                curve = blockX.attrib['curve']
+                systemName = blockX.find('systemName').text
+                userName = ''
+                userNameX = blockX.find('userName')
+                if userNameX != None:
+                    userName = userNameX.text
+                comment = ''
+                commentX = blockX.find('comment')
+                if commentX != None:
+                    comment = commentX.text
+                permissive = permissiveX.text
+                paths = []
+                for child in blockX:
+                    if child.tag == 'path':
+                        path = (child.attrib['todir'], child.attrib['fromdir'], child.attrib['block'])
+                        paths.append(path)
+                row = [systemName, userName, length, curve, comment, permissive, str(paths)]
+                tablewriter.writerow(row)
+
+
 
 
 def main(args):
@@ -173,6 +204,8 @@ def main(args):
             extractSignalHeads(child, outputDir)
         elif child.tag == 'signalmasts':
             extractSignalMasts(child, outputDir)
+        elif child.tag == 'blocks':
+            extractBlocks(child, outputDir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
