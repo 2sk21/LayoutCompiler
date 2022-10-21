@@ -177,8 +177,15 @@ def extractBlocks(blocksX, outputDir):
                 row = [systemName, userName, length, curve, comment, permissive, str(paths)]
                 tablewriter.writerow(row)
 
+def extractXMLblob(root, filename, outputDir):
+    with open(outputDir + filename, 'w') as outFile:
+        t = ET.tostring(root, encoding='unicode')
+        outFile.write(t)
 
-
+def removeElements(root, tagName):
+    elements = root.findall(tagName)
+    for e in elements:
+        root.remove(e)
 
 def main(args):
     ifn = args.inputFile
@@ -206,6 +213,16 @@ def main(args):
             extractSignalMasts(child, outputDir)
         elif child.tag == 'blocks':
             extractBlocks(child, outputDir)
+    # Finally, we create a reduced version of the layout config XML file with
+    # the external;ly managed objects removed.
+    removeElements(root, 'sensors')
+    removeElements(root, 'turnouts')
+    removeElements(root, 'lights')
+    removeElements(root, 'signalheads')
+    removeElements(root, 'signalmasts')
+    removeElements(root, 'blocks')
+    tree.write(outputDir + 'reduced.xml')
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
