@@ -24,12 +24,15 @@ def loadSensorFile(fileName, root, elementCounter):
                 dis.text = defaultInitialState
             else:
                 sensorX = ET.SubElement(sensorsX, 'sensor')
-                
-        
-
-
-
-
+                sensorX.attrib['inverted'] = row[2]
+                systemNameX = ET.SubElement(sensorX, 'systemName')
+                systemNameX.text = row[0]
+                if row[1] != '':
+                    userNameX = ET.SubElement(sensorX, 'userName')
+                    userNameX.text = row[1]
+                if row[3] != '':
+                    commentX = ET.SubElement(sensorX, 'comment')
+                    commentX.text = row[3]
 
 def main(args):
     # Load the reduced XML file
@@ -51,6 +54,7 @@ def main(args):
         loadSensorFile(sensorFileName, root, elementCounter)
         elementCounter += 1
 
+    tree.write('layout.xml')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
