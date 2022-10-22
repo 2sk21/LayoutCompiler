@@ -54,6 +54,7 @@ def main(args):
         loadSensorFile(sensorFileName, root, elementCounter)
         elementCounter += 1
 
+    ET.indent(tree)
     tree.write('layout.xml')
 
 if __name__ == '__main__':
