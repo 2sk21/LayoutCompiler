@@ -41,14 +41,17 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                     inverted = False
                     if "inverted" in sensorX.attrib:
                         inverted = sensorX.attrib['inverted'] == "true"
-                    systemName = ""
-                    userName = ""
+                    systemName = ''
+                    userName = ''
+                    comment = ''
                     for t in sensorX:
-                        if t.tag == "systemName":
+                        if t.tag == 'systemName':
                             systemName = t.text
-                        elif t.tag == "userName":
+                        elif t.tag == 'userName':
                             userName = t.text
-                    tablewriter.writerow([str(systemName), str(userName), str(inverted)])
+                        elif t.tag == 'comment':
+                            comment = t.text
+                    tablewriter.writerow([str(systemName), str(userName), str(inverted), comment])
     else:
         print('Could not determine file name for sensors ' + sensorSetCounter)
 
@@ -222,7 +225,6 @@ def main(args):
     removeElements(root, 'signalmasts')
     removeElements(root, 'blocks')
     tree.write(outputDir + 'reduced.xml')
-        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
