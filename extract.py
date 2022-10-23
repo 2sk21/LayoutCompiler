@@ -51,7 +51,7 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                             userName = t.text
                         elif t.tag == 'comment':
                             comment = t.text
-                    tablewriter.writerow([str(systemName), str(userName), str(inverted), comment])
+                    tablewriter.writerow(['sensor', str(systemName), str(userName), str(inverted), comment])
     else:
         print('Could not determine file name for sensors ' + sensorSetCounter)
 
@@ -80,19 +80,45 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
                 tablewriter.writerow(row)
             for turnoutX in turnoutsX:
                 if turnoutX.tag == "turnout":
-                    sn = turnoutX.find('systemName').text
-                    commentX = turnoutX.find('comment')
+                    systemName = turnoutX.find('systemName').text
+
+                    # User name is optional
+                    userName = ''
+                    userNameX = turnoutX.find('userName')
+                    if userNameX != None:
+                        userName = userNameX.text
+
+                    # Comment is optional
                     comment = ''
+                    commentX = turnoutX.find('comment')
                     if commentX != None:
                         comment = commentX.text
-                    feedback = turnoutX.attrib['feedback']
+
+                    # sensor1 is optional
                     sensor1 = ''
                     if 'sensor1' in turnoutX.attrib:
                         sensor1 = turnoutX.attrib['sensor1']
+                    
+                    # sensor2 is optional
                     sensor2 = ''
                     if 'sensor2' in turnoutX.attrib:
                         sensor2 = turnoutX.attrib['sensor2']
-                    row = [ 'turnout', sn, comment, feedback, sensor1, sensor2, turnoutX.attrib['inverted'], turnoutX.attrib['automate']]
+
+                    # controlType is optional
+                    controlType = ''
+                    if 'controlType' in turnoutX.attrib:
+                        controlType = turnoutX.attrib['controlType']
+
+                    row = [ 'turnout',                  # 0
+                        systemName,                     # 1
+                        userName,                       # 2
+                        comment,                        # 3
+                        turnoutX.attrib['feedback'],    # 4
+                        sensor1,                        # 5
+                        sensor2,                        # 6
+                        turnoutX.attrib['inverted'],    # 7
+                        controlType,                    # 8
+                        turnoutX.attrib['automate']]    # 9
                     tablewriter.writerow(row)
 
 def extractLights(lightsX, lightSetCounter, outputDir):
