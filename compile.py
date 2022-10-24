@@ -126,6 +126,26 @@ def loadTurnoutFile(fileName, root, elementCounter):
                 #        valueX = ET.SubElement(propertyX, 'value')
                 #        valueX.text = kvp[1]
 
+def loadLightFile(fileName, root, elementCounter):
+    with open(fileName, 'r') as inputFile:
+        lightReader = csv.reader(inputFile)
+        lightsX = ET.Element('lights')
+        root.insert(elementCounter, lightsX)
+        for row in lightReader:
+            if row[0] == 'class':
+                lightsX.attrib['class'] = row[1]
+            elif row[0] == 'light':
+                systemName = row[1]
+                minIntensity = row[2]
+                maxIntensity = row[3]
+                transitionTime = row[4]
+                lightX = ET.SubElement(lightsX, 'light')
+                systemNameX = ET.SubElement(lightX, 'systemName')
+                systemNameX.text = systemName
+                lightX.attrib['minIntensity'] = minIntensity
+                lightX.attrib['maxIntensity'] = maxIntensity
+                lightX.attrib['transitionTime'] = transitionTime
+
 def main(args):
     # Load the reduced XML file
     inputDir = args.inputDir
@@ -140,7 +160,15 @@ def main(args):
     csvf = list(p.glob('*.csv'))
     sensorFileNames = [ str(x) for x in csvf if str(x).find('S') > 0 ]
     turnoutFileNames = [ str(x) for x in csvf if str(x).find('T') > 0 ]
-    lightsFileNames = [ str(x) for x in csvf if str(x).find('L') > 0 ]
+    #lightsFileNames = [ str(x) for x in csvf if str(x).find('L') > 0 ]
+
+    lightsFileNames = []
+    p = re.compile(r'C\d*L')
+    for x in csvf:
+        fileName = str(x)
+        if p.search(fileName) != None:
+            lightsFileNames.append(fileName)
+
 
     for sensorFileName in sensorFileNames:
         loadSensorFile(sensorFileName, root, elementCounter)
@@ -148,6 +176,10 @@ def main(args):
 
     for turnoutFileName in turnoutFileNames:
         loadTurnoutFile(turnoutFileName, root, elementCounter)
+        elementCounter += 1
+
+    for lightFileName in lightsFileNames:
+        loadLightFile(lightFileName, root, elementCounter)
         elementCounter += 1
 
     ET.indent(tree)

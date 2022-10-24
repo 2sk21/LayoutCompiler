@@ -146,7 +146,7 @@ def extractLights(lightsX, lightSetCounter, outputDir):
                 minIntensity = lightX.attrib['minIntensity']
                 maxIntensity = lightX.attrib['maxIntensity']
                 transitionTime = lightX.attrib['transitionTime']
-                row = [systemName, minIntensity, maxIntensity, transitionTime]
+                row = ['light', systemName, minIntensity, maxIntensity, transitionTime]
                 tablewriter.writerow(row)
 
 def extractSignalHeads(signalHeadsX, outputDir):
