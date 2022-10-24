@@ -8,6 +8,15 @@ import csv
 import re
 import argparse
 
+# This pattern occurs repeatedly
+def getOptionalElement(parent, tagname):
+    x = parent.find(tagname)
+    if x != None:
+        return x.text
+    else:
+        return ''
+
+
 def getFileName(sensorsX, setCounter, objectName):
     className = sensorsX.attrib['class']
     comps = className.split('.')
@@ -143,10 +152,20 @@ def extractLights(lightsX, lightSetCounter, outputDir):
             tablewriter.writerow(row)
             for lightX in lightsX:
                 systemName = lightX.find('systemName').text
+                userName = getOptionalElement(lightX, 'userName')
+                comment = getOptionalElement(lightX, 'comment')
+                controlType = ''
+                controlSensor = ''
+                sensorSense = ''
+                lightcontrolX = lightX.find('lightcontrol')
+                if lightcontrolX != None:
+                    controlType = lightcontrolX.attrib['controlType']
+                    controlSensor = lightcontrolX.attrib['controlSensor']
+                    sensorSense = lightcontrolX.attrib['sensorSense']
                 minIntensity = lightX.attrib['minIntensity']
                 maxIntensity = lightX.attrib['maxIntensity']
                 transitionTime = lightX.attrib['transitionTime']
-                row = ['light', systemName, minIntensity, maxIntensity, transitionTime]
+                row = ['light', systemName, userName, comment, minIntensity, maxIntensity, transitionTime, controlType, controlSensor, sensorSense]
                 tablewriter.writerow(row)
 
 def extractSignalHeads(signalHeadsX, outputDir):

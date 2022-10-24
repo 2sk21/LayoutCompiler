@@ -136,15 +136,30 @@ def loadLightFile(fileName, root, elementCounter):
                 lightsX.attrib['class'] = row[1]
             elif row[0] == 'light':
                 systemName = row[1]
-                minIntensity = row[2]
-                maxIntensity = row[3]
-                transitionTime = row[4]
+                userName = row[2]
+                comment = row[3]
+                minIntensity = row[4]
+                maxIntensity = row[5]
+                transitionTime = row[6]
+                controlType = row[7]
+                controlSensor = row[8]
+                sensorSense = row[9]
                 lightX = ET.SubElement(lightsX, 'light')
-                systemNameX = ET.SubElement(lightX, 'systemName')
-                systemNameX.text = systemName
+                ET.SubElement(lightX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(lightX, 'userName').text = userName
+                if comment != '':
+                    ET.SubElement(lightX, 'comment').text = comment
                 lightX.attrib['minIntensity'] = minIntensity
                 lightX.attrib['maxIntensity'] = maxIntensity
                 lightX.attrib['transitionTime'] = transitionTime
+                
+                if controlType != '' and controlSensor != '' and sensorSense != '':
+                    lightcontrolX = ET.SubElement(lightX, 'lightcontrol')
+                    lightcontrolX.attrib['controlType'] = controlType
+                    lightcontrolX.attrib['controlSensor'] = controlSensor
+                    lightcontrolX.attrib['sensorSense'] = sensorSense
+
 
 def main(args):
     # Load the reduced XML file
