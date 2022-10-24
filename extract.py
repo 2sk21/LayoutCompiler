@@ -32,12 +32,15 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
             tablewriter = csv.writer(outFile)
             row = [ 'class', sensorsX.attrib['class']]
             tablewriter.writerow(row)
-            dis = sensorsX.find('defaultInitialState')
-            if dis != None:
-                row = [ 'defaultInitialState', sensorsX.find('defaultInitialState').text]
-                tablewriter.writerow(row)
+            gdt = sensorsX.find('globalDebounceTimers')
             for sensorX in sensorsX:
-                if sensorX.tag == "sensor":
+                if sensorX.tag == 'defaultInitialState':
+                    row = [ 'defaultInitialState', sensorX.text ]
+                    tablewriter.writerow(row)
+                elif sensorX.tag == 'globalDebounceTimers':
+                    row = [ 'globalDebounceTimers', sensorX.find('goingActive').text, sensorX.find('goingInActive').text]
+                    tablewriter.writerow(row)
+                elif sensorX.tag == "sensor":
                     inverted = False
                     if "inverted" in sensorX.attrib:
                         inverted = sensorX.attrib['inverted'] == "true"

@@ -31,15 +31,21 @@ def loadSensorFile(fileName, root, elementCounter):
                 defaultInitialState = row[1]
                 dis = ET.SubElement(sensorsX, 'defaultInitialState')
                 dis.text = defaultInitialState
+            elif row[0] == 'globalDebounceTimers':
+                globalDebounceTimersX = ET.SubElement(sensorsX, 'globalDebounceTimers')
+                goingActiveX = ET.SubElement(globalDebounceTimersX, 'goingActive')
+                goingActiveX.text = row[1]
+                goingInActiveX = ET.SubElement(globalDebounceTimersX, 'goingInActive')
+                goingInActiveX.text = row[2]
             elif row[0] == 'sensor':
                 sensorX = ET.SubElement(sensorsX, 'sensor')
-                sensorX.attrib['inverted'] = row[3]
                 systemNameX = ET.SubElement(sensorX, 'systemName')
                 systemNameX.text = row[1]
-                if row[1] != '':
+                if row[2].strip() != '':
                     userNameX = ET.SubElement(sensorX, 'userName')
                     userNameX.text = row[2]
-                if row[3] != '':
+                sensorX.attrib['inverted'] = row[3]
+                if row[4].strip() != '':
                     commentX = ET.SubElement(sensorX, 'comment')
                     commentX.text = row[4]
 
@@ -79,12 +85,12 @@ def loadTurnoutFile(fileName, root, elementCounter):
                 systemNameX.text = systemName
 
                 userName = row[2]
-                if userName != '':
+                if userName.strip() != '':
                     userNameX = ET.SubElement(turnoutX, 'userName')
                     userNameX.text = userName
 
                 comment = row[3]
-                if comment != '':
+                if comment.strip() != '':
                     commentX = ET.SubElement(turnoutX, 'comment')
                     commentX.text = comment
 
@@ -96,14 +102,14 @@ def loadTurnoutFile(fileName, root, elementCounter):
                     turnoutX.attrib['sensor1'] = sensor1
 
                 sensor2 = row[6]
-                if sensor2 != '':
+                if sensor2.strip() != '':
                     turnoutX.attrib['sensor2'] = sensor2
 
                 inverted = row[7]
                 turnoutX.attrib['inverted'] = inverted
 
                 controlType = row[8]
-                if controlType != '':
+                if controlType.strip() != '':
                     turnoutX.attrib['controlType'] = controlType
 
                 automate = row[9]
