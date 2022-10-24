@@ -112,6 +112,15 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
                     if 'controlType' in turnoutX.attrib:
                         controlType = turnoutX.attrib['controlType']
 
+                    #propertiesL = []
+                    #propertiesX = turnoutX.find('properties')
+                    #if propertiesX != None:
+                    #    for propertyX in propertiesX:
+                    #        key = propertyX.find('key').text
+                    #        value = propertyX.find('value').text
+                    #        propertiesL.append((key,value))
+                    #properties = str(propertiesL)
+
                     row = [ 'turnout',                  # 0
                         systemName,                     # 1
                         userName,                       # 2
@@ -121,7 +130,8 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
                         sensor2,                        # 6
                         turnoutX.attrib['inverted'],    # 7
                         controlType,                    # 8
-                        turnoutX.attrib['automate']]    # 9
+                        turnoutX.attrib['automate']     # 9
+                        ]
                     tablewriter.writerow(row)
 
 def extractLights(lightsX, lightSetCounter, outputDir):

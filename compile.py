@@ -114,8 +114,17 @@ def loadTurnoutFile(fileName, root, elementCounter):
 
                 automate = row[9]
                 turnoutX.attrib['automate'] = automate
-            
 
+                #propertiesS = row[10]
+                #propertiesL = eval(propertiesS)
+                #if len(propertiesL) > 0:
+                #    propertiesX = ET.SubElement(turnoutX, 'properties')
+                #    for kvp in propertiesL:
+                #        propertyX = ET.SubElement(propertiesX, 'property')
+                #        keyX = ET.SubElement(propertyX, 'key')
+                #        keyX.text = kvp[0]
+                #        valueX = ET.SubElement(propertyX, 'value')
+                #        valueX.text = kvp[1]
 
 def main(args):
     # Load the reduced XML file
