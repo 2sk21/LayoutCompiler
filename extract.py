@@ -39,6 +39,8 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
     if sensorFileName:
         with open(outputDir + sensorFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
+            headings = ['Columns',  'System name', 'User name', 'Inverted', 'Comment' ]
+            tablewriter.writerow(headings)
             row = [ 'class', sensorsX.attrib['class']]
             tablewriter.writerow(row)
             gdt = sensorsX.find('globalDebounceTimers')
@@ -72,6 +74,8 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
     if turnoutFileName:
         with open(outputDir + turnoutFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
+            headings = ['Columns',  'System name', 'User name', 'Comment', 'Feedback', 'Sensor 1', 'Sensor 2', 'Inverted', 'Control type', 'Automate']
+            tablewriter.writerow(headings)
             row = [ 'class', turnoutsX.attrib['class']]
             tablewriter.writerow(row)
             ops = turnoutsX.find('operations')
@@ -148,6 +152,8 @@ def extractLights(lightsX, lightSetCounter, outputDir):
     if lightFileName:
         with open(outputDir + lightFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
+            headings = ['Columns', 'System name', 'User name', 'Comment', 'Min intensity', 'Max intensity', 'Transition time', 'Control type', 'Control sensor', 'Sensor sense']
+            tablewriter.writerow(headings)
             row = [ 'class', lightsX.attrib['class']]
             tablewriter.writerow(row)
             for lightX in lightsX:
