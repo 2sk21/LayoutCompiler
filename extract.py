@@ -177,18 +177,25 @@ def extractLights(lightsX, lightSetCounter, outputDir):
 def extractSignalHeads(signalHeadsX, outputDir):
     with open(outputDir + 'signalheads.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
+        row = [ 'Columns', 'System name', 'User name', 'Green', 'Yellow', 'Red' ]
         row = [ 'class', signalHeadsX.attrib['class']]
         tablewriter.writerow(row)
         for signalHeadX in signalHeadsX:
-            cl = signalHeadX.attrib['class']
-            row = [ 'class', cl]
+            #cl = signalHeadX.attrib['class']
+            systemName = signalHeadX.find('systemName').text
+            userName = getOptionalElement(signalHeadX, 'userName')
+            green = ''
+            yellow = ''
+            red = ''
             for child in signalHeadX:
-                if child.tag == 'systemName':
-                    row.append(child.text)
-                elif child.tag == 'appearance':
-                    row.append(('appearance', child.attrib['defines'], child.text))
-                elif child.tag == 'turnoutname':
-                    row.append(('turnoutname', child.attrib['defines'], child.text))
+                if child.tag == 'turnoutname':
+                    if child.attrib['defines'] == 'red':
+                        red = child.text
+                    elif child.attrib['defines'] == 'yellow':
+                        yellow = child.text
+                    elif child.attrib['defines'] == 'green':
+                        green = child.text
+            row = [ 'signalhead', systemName, userName, green, yellow, red ]        
             tablewriter.writerow(row)
 
 def extractSignalMasts(signalMastsX, outputDir):

@@ -160,6 +160,36 @@ def loadLightFile(fileName, root, elementCounter):
                     lightcontrolX.attrib['controlSensor'] = controlSensor
                     lightcontrolX.attrib['sensorSense'] = sensorSense
 
+def loadSignalHeads(fileName, root, elementCounter):
+    with open(fileName, 'r') as inputFile:
+        signalHeadsReader = csv.reader(inputFile)
+        signalHeadsX = ET.Element('signalheads')
+        root.insert(elementCounter, signalHeadsX)
+        for row in signalHeadsReader:
+            if row[0] == 'class':
+                signalHeadsX.attrib['class'] = row[1]
+            elif row[0] == 'signalhead':
+                systemName = row[1]
+                userName = row[2]
+                green = row[3]
+                yellow = row[4]
+                red = row[5]
+                signalHeadX = ET.SubElement(signalHeadsX, 'signalhead')
+                ET.SubElement(signalHeadX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(signalHeadX, 'userName').text = userName
+                if green != '':
+                    turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
+                    turnoutnameX.text = green
+                    turnoutnameX.attrib['defines'] = 'green'
+                if yellow != '':
+                    turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
+                    turnoutnameX.text = yellow
+                    turnoutnameX.attrib['defines'] = 'yellow'
+                if red != '':
+                    turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
+                    turnoutnameX.text = red
+                    turnoutnameX.attrib['defines'] = 'red'
 
 def main(args):
     # Load the reduced XML file
@@ -196,6 +226,11 @@ def main(args):
     for lightFileName in lightsFileNames:
         loadLightFile(lightFileName, root, elementCounter)
         elementCounter += 1
+
+    elementCounter += 1 # Skip past the memories tag
+
+    loadSignalHeads(inputDir + 'signalheads.csv', root, elementCounter)
+    elementCounter += 1
 
     ET.indent(tree)
     tree.write('layout.xml')
