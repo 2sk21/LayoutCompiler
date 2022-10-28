@@ -234,6 +234,8 @@ def extractSignalMasts(signalMastsX, outputDir):
 def extractBlocks(blocksX, outputDir):
     with open(outputDir + 'blocks.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
+        row = [ 'Columns', 'Name', 'Unlit', 'Disabled aspects']
+        tablewriter.writerow(row)
         row = [ 'class', blocksX.attrib['class']]
         tablewriter.writerow(row)
         for blockX in blocksX:
@@ -253,12 +255,7 @@ def extractBlocks(blocksX, outputDir):
                 if commentX != None:
                     comment = commentX.text
                 permissive = permissiveX.text
-                paths = []
-                for child in blockX:
-                    if child.tag == 'path':
-                        path = (child.attrib['todir'], child.attrib['fromdir'], child.attrib['block'])
-                        paths.append(path)
-                row = [systemName, userName, length, curve, comment, permissive, str(paths)]
+                row = [systemName, userName, length, curve, comment, permissive]
                 tablewriter.writerow(row)
 
 def extractXMLblob(root, filename, outputDir):
