@@ -234,12 +234,12 @@ def extractSignalMasts(signalMastsX, outputDir):
 def extractBlocks(blocksX, outputDir):
     with open(outputDir + 'blocks.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
-        row = [ 'Columns', 'Name', 'Unlit', 'Disabled aspects']
+        row = [ 'Columns', 'System name', 'User name', 'length', 'curve', 'comment', 'permissive', 'Occupancy sensor']
         tablewriter.writerow(row)
         row = [ 'class', blocksX.attrib['class']]
         tablewriter.writerow(row)
         for blockX in blocksX:
-            # Block elements are present in duplicateto break circularity in the code
+            # Block elements are present in duplicate to break circularity in the code
             # Only the instance with the permissive child element needs to be considered
             permissiveX = blockX.find('permissive')
             if permissiveX != None:
@@ -255,7 +255,8 @@ def extractBlocks(blocksX, outputDir):
                 if commentX != None:
                     comment = commentX.text
                 permissive = permissiveX.text
-                row = ['block', systemName, userName, length, curve, comment, permissive]
+                occupancySensor = getOptionalElement(blockX, 'occupancysensor')
+                row = ['block', systemName, userName, length, curve, comment, permissive, occupancySensor]
                 tablewriter.writerow(row)
 
 def extractXMLblob(root, filename, outputDir):

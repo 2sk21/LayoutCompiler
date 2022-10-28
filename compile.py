@@ -216,6 +216,55 @@ def loadSignalMasts(fileName, root, elementCounter):
                     for d in disabledAspects:
                         ET.SubElement(disabledAspectsX, 'disabledAspect').text = d
 
+def loadBlocks(fileName, root, elementCounter):
+    blocksX = ET.Element('blocks')
+    # Create forward reference blocks
+    with open(fileName, 'r') as inputFile:
+        blocksReader = csv.reader(inputFile)
+        root.insert(elementCounter, blocksX)
+        for row in blocksReader:
+            if row[0] == 'class':
+                blocksX.attrib['class'] = row[1]
+            elif row[0] == 'block':
+                systemName = row[1]
+                userName = row[2]
+                length = row[3]
+                curve = row[4]
+                comment = row[5]
+                permissive = row[6]
+                blockX = ET.SubElement(blocksX, 'block')
+                blockX.attrib['systemName'] = systemName
+                ET.SubElement(blockX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(blockX, 'userName').text = systemName
+    # Now create the full blocks
+    with open(fileName, 'r') as inputFile:
+        blocksReader = csv.reader(inputFile)
+        root.insert(elementCounter, blocksX)
+        for row in blocksReader:
+            if row[0] == 'block':
+                systemName = row[1]
+                userName = row[2]
+                length = row[3]
+                curve = row[4]
+                comment = row[5]
+                permissive = row[6]
+                occupancySensor = row[7]
+                blockX = ET.SubElement(blocksX, 'block')
+                blockX.attrib['systemName'] = systemName
+                ET.SubElement(blockX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(blockX, 'userName').text = userName
+                if length != '':
+                    blockX.attrib['length'] = length
+                if curve != '':
+                    blockX.attrib['curve'] = curve
+                if comment != '':
+                    ET.SubElement(blockX, 'comment').text = comment
+                if permissive != '':
+                    ET.SubElement(blockX, 'permissive').text = permissive
+                if occupancySensor != '':
+                    ET.SubElement(blockX, 'occupancysensor').text = occupancySensor
 
 def main(args):
     # Load the reduced XML file
@@ -240,7 +289,6 @@ def main(args):
         if p.search(fileName) != None:
             lightsFileNames.append(fileName)
 
-
     for sensorFileName in sensorFileNames:
         loadSensorFile(sensorFileName, root, elementCounter)
         elementCounter += 1
@@ -260,6 +308,8 @@ def main(args):
 
     loadSignalMasts(inputDir + 'signalmasts.csv', root, elementCounter)
     elementCounter += 1
+
+    loadBlocks(inputDir + 'blocks.csv', root, elementCounter)
 
     ET.indent(tree)
     tree.write('layout.xml')
