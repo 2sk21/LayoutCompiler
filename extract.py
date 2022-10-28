@@ -255,7 +255,7 @@ def extractBlocks(blocksX, outputDir):
                 if commentX != None:
                     comment = commentX.text
                 permissive = permissiveX.text
-                row = [systemName, userName, length, curve, comment, permissive]
+                row = ['block', systemName, userName, length, curve, comment, permissive]
                 tablewriter.writerow(row)
 
 def extractXMLblob(root, filename, outputDir):
