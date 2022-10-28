@@ -191,6 +191,32 @@ def loadSignalHeads(fileName, root, elementCounter):
                     turnoutnameX.text = red
                     turnoutnameX.attrib['defines'] = 'red'
 
+def loadSignalMasts(fileName, root, elementCounter):
+    with open(fileName, 'r') as inputFile:
+        signalMastsReader = csv.reader(inputFile)
+        signalMastsX = ET.Element('signalmasts')
+        root.insert(elementCounter, signalMastsX)
+        for row in signalMastsReader:
+            if row[0] == 'class':
+                signalMastsX.attrib['class'] = row[1]
+            elif row[0] == 'signalmast':
+                name = row[1]
+                unlit = row[2]
+                disabledAspects = eval(row[3])
+                systemName = 'IF$shsm:AAR-1946:SL-1-high-abs(%s)' % name
+                userName = 'G-' + name
+                signalMastX = ET.SubElement(signalMastsX, 'signalmast')
+                signalMastX.attrib['class'] = 'jmri.implementation.configurexml.SignalHeadSignalMastXml'
+                ET.SubElement(signalMastX, 'systemName').text = systemName
+                ET.SubElement(signalMastX, 'unlit').attrib['allowed'] = unlit
+                if userName != '':
+                    ET.SubElement(signalMastX, 'userName').text = userName
+                if len(disabledAspects) > 0:
+                    disabledAspectsX = ET.SubElement(signalMastX, 'disabledAspects')
+                    for d in disabledAspects:
+                        ET.SubElement(disabledAspectsX, 'disabledAspect').text = d
+
+
 def main(args):
     # Load the reduced XML file
     inputDir = args.inputDir
@@ -230,6 +256,9 @@ def main(args):
     elementCounter += 1 # Skip past the memories tag
 
     loadSignalHeads(inputDir + 'signalheads.csv', root, elementCounter)
+    elementCounter += 1
+
+    loadSignalMasts(inputDir + 'signalmasts.csv', root, elementCounter)
     elementCounter += 1
 
     ET.indent(tree)
