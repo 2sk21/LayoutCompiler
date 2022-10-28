@@ -201,24 +201,34 @@ def extractSignalHeads(signalHeadsX, outputDir):
 def extractSignalMasts(signalMastsX, outputDir):
     with open(outputDir + 'signalmasts.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
+        row = [ 'Columns', 'Name', 'Unlit', 'Disabled aspects' ]
+        tablewriter.writerow(row)
         row = [ 'class', signalMastsX.attrib['class']]
         tablewriter.writerow(row)
         for signalMastX in signalMastsX:
-            cl = signalMastX.attrib['class']
-            systemName = ''
-            userName = ''
+            actualName = ''
             unlit='no'
             disabledAspects = []
             for child in signalMastX:
                 if child.tag == 'systemName':
                     systemName = child.text
+                    pat = re.compile(r'\((.*)\)')
+                    mat = pat.search(systemName)
+                    if mat == None:
+                        print('Error in extracting signal mast ', systemName)
+                        return
+                    else:
+                        (f, t) = mat.span(1)
+                        actualName = systemName[f:t]
                 elif child.tag == 'userName':
-                    uuserName = child.text
+                    userName = child.text
+                elif child.tag == 'unlit':
+                    unlit = child.attrib['allowed']
                 elif child.tag == 'disabledAspects':
                     for c in child:
                         disabledAspects.append(c.text)
             da = '(' + ','.join(disabledAspects) + ')'
-            row = [ cl, systemName, userName, unlit, da]
+            row = [ 'signalmast', actualName, unlit, disabledAspects]
             tablewriter.writerow(row)
 
 def extractBlocks(blocksX, outputDir):
