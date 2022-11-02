@@ -39,7 +39,7 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
     if sensorFileName:
         with open(outputDir + sensorFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
-            headings = ['Columns',  'System name', 'User name', 'Inverted', 'Comment' ]
+            headings = ['Columns',  'System name', 'User name', 'Inverted', 'Comment', 'Use global debounce timer' ]
             tablewriter.writerow(headings)
             row = [ 'class', sensorsX.attrib['class']]
             tablewriter.writerow(row)
@@ -58,6 +58,7 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                     systemName = ''
                     userName = ''
                     comment = ''
+                    useGlobalDebounceTimer = ''
                     for t in sensorX:
                         if t.tag == 'systemName':
                             systemName = t.text
@@ -65,7 +66,9 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                             userName = t.text
                         elif t.tag == 'comment':
                             comment = t.text
-                    tablewriter.writerow(['sensor', str(systemName), str(userName), str(inverted), comment])
+                        elif t.tag == 'useGlobalDebounceTimer':
+                            useGlobalDebounceTimer = t.text
+                    tablewriter.writerow(['sensor', str(systemName), str(userName), str(inverted), comment, useGlobalDebounceTimer])
     else:
         print('Could not determine file name for sensors ' + sensorSetCounter)
 
@@ -276,7 +279,7 @@ def main(args):
     sensorSetCounter = 0
     turnoutSetCounter = 0
     lightSetCounter = 0
-    outputDir = args.outputDir
+    outputDir = args.csvDir
     if not outputDir.endswith('/'):
         outputDir = outputDir + '/'
     for child in root:
@@ -308,6 +311,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
     parser.add_argument('inputFile', type=str, help='JMRI layout description file in XML format')
-    parser.add_argument('--outputDir', type=str, default='.', help='Directory in which to write the generated CSV files')
+    parser.add_argument('--csvDir', type=str, default='.', help='Directory in which to write the generated CSV files')
     args = parser.parse_args()
     main(args)
