@@ -48,6 +48,9 @@ def loadSensorFile(fileName, root, elementCounter):
                 if row[4].strip() != '':
                     commentX = ET.SubElement(sensorX, 'comment')
                     commentX.text = row[4]
+                if row[5].strip() != '':
+                    useGlobalDebounceTimerX = ET.SubElement(sensorX, 'useGlobalDebounceTimer')
+                    useGlobalDebounceTimerX.text = row[5]
 
 def loadTurnoutFile(fileName, root, elementCounter):
     with open(fileName, 'r') as inputFile:
@@ -266,13 +269,27 @@ def loadBlocks(fileName, root, elementCounter):
                 if occupancySensor != '':
                     ET.SubElement(blockX, 'occupancysensor').text = occupancySensor
 
+def removeElements(root, tagName):
+    elements = root.findall(tagName)
+    for e in elements:
+        root.remove(e)
+
 def main(args):
     # Load the reduced XML file
-    inputDir = args.inputDir
+    inputDir = args.csvDir
     if not inputDir.endswith('/'):
         inputDir = inputDir + '/'
-    tree = ET.parse(inputDir + 'reduced.xml')
+    tree = ET.parse(args.layoutFile)
     root = tree.getroot()
+
+    # Remove all of the objects that are externally managed
+    removeElements(root, 'sensors')
+    removeElements(root, 'turnouts')
+    removeElements(root, 'lights')
+    removeElements(root, 'signalheads')
+    removeElements(root, 'signalmasts')
+    removeElements(root, 'blocks')
+
     elementCounter = 1 # The index of the the insertion point for the next element
     
     # Get a list of the CSV files for sensors, turnouts and lights
@@ -312,10 +329,14 @@ def main(args):
     loadBlocks(inputDir + 'blocks.csv', root, elementCounter)
 
     ET.indent(tree)
-    tree.write('layout.xml')
+    comps = args.layoutFile.split('.')
+    newFileName = comps[0] + '_updated.' + comps[1]
+    tree.write(newFileName, xml_declaration=True, encoding='UTF-8')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
-    parser.add_argument('--inputDir', type=str, default='.', help='Directory containing the CSV and XML files.')
+    parser.add_argument('--csvDir', type=str, default='.', help='Directory containing the CSV files.')
+    parser.add_argument('layoutFile', type=str, help='JMRI layout description file in XML format')
     args = parser.parse_args()
+
     main(args)
