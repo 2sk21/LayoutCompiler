@@ -178,28 +178,58 @@ def extractLights(lightsX, lightSetCounter, outputDir):
                 tablewriter.writerow(row)
 
 def extractSignalHeads(signalHeadsX, outputDir):
-    with open(outputDir + 'signalheads.csv', 'w') as outFile:
+    with open(outputDir + 'signalheads_tripleturnout.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
-        row = [ 'Columns', 'System name', 'User name', 'Green', 'Yellow', 'Red' ]
+        row = [ 'Columns', 'System name', 'User name', 'Comment', 'Green', 'Yellow', 'Red' ]
+        tablewriter.writerow(row)
         row = [ 'class', signalHeadsX.attrib['class']]
         tablewriter.writerow(row)
         for signalHeadX in signalHeadsX:
-            #cl = signalHeadX.attrib['class']
-            systemName = signalHeadX.find('systemName').text
-            userName = getOptionalElement(signalHeadX, 'userName')
-            green = ''
-            yellow = ''
-            red = ''
-            for child in signalHeadX:
-                if child.tag == 'turnoutname':
-                    if child.attrib['defines'] == 'red':
-                        red = child.text
-                    elif child.attrib['defines'] == 'yellow':
-                        yellow = child.text
-                    elif child.attrib['defines'] == 'green':
-                        green = child.text
-            row = [ 'signalhead', systemName, userName, green, yellow, red ]        
-            tablewriter.writerow(row)
+            cl = signalHeadX.attrib['class']
+            if cl == 'jmri.implementation.configurexml.TripleTurnoutSignalHeadXml':
+                systemName = signalHeadX.find('systemName').text
+                userName = getOptionalElement(signalHeadX, 'userName')
+                comment = getOptionalElement(signalHeadX, 'comment')
+                green = ''
+                yellow = ''
+                red = ''
+                for child in signalHeadX:
+                    if child.tag == 'turnoutname':
+                        if child.attrib['defines'] == 'red':
+                            red = child.text
+                        elif child.attrib['defines'] == 'yellow':
+                            yellow = child.text
+                        elif child.attrib['defines'] == 'green':
+                            green = child.text
+                row = [ 'signalhead', systemName, userName, comment, green, yellow, red ]
+                tablewriter.writerow(row)
+    with open(outputDir + 'signalheads_singleturnout.csv', 'w') as outFile:
+        tablewriter = csv.writer(outFile)
+        row = [ 'Columns', 'System name', 'User name', 'Comment', 'Thrown', 'Closed', 'Aspect' ]
+        tablewriter.writerow(row)
+        row = [ 'class', signalHeadsX.attrib['class']]
+        tablewriter.writerow(row)
+        for signalHeadX in signalHeadsX:
+            cl = signalHeadX.attrib['class']
+            if cl == 'jmri.implementation.configurexml.SingleTurnoutSignalHeadXml':
+                systemName = signalHeadX.find('systemName').text
+                userName = getOptionalElement(signalHeadX, 'userName')
+                comment = getOptionalElement(signalHeadX, 'comment')
+                thrown = ''
+                closed = ''
+                aspect = ''
+                for child in signalHeadX:
+                    if child.tag == 'appearance':
+                        if child.attrib['defines'] == 'thrown':
+                            thrown = child.text
+                        elif child.attrib['defines'] == 'closed':
+                            closed = child.text
+                    elif child.tag == 'turnoutname':
+                        if child.attrib['defines'] == 'aspect':
+                            aspect = child.text
+                row = [ 'signalhead', systemName, userName, comment, thrown, closed, aspect ]
+                tablewriter.writerow(row)
+            
 
 def extractSignalMasts(signalMastsX, outputDir):
     with open(outputDir + 'signalmasts.csv', 'w') as outFile:
@@ -299,14 +329,15 @@ def main(args):
         elif child.tag == 'blocks':
             extractBlocks(child, outputDir)
     # Finally, we create a reduced version of the layout config XML file with
-    # the external;ly managed objects removed.
-    removeElements(root, 'sensors')
-    removeElements(root, 'turnouts')
-    removeElements(root, 'lights')
-    removeElements(root, 'signalheads')
-    removeElements(root, 'signalmasts')
-    removeElements(root, 'blocks')
-    tree.write(outputDir + 'reduced.xml')
+    # the externally managed objects removed.
+    # Commented this out as the reduced XML is no longer necessary (11/5/2022)
+    #removeElements(root, 'sensors')
+    #removeElements(root, 'turnouts')
+    #removeElements(root, 'lights')
+    #removeElements(root, 'signalheads')
+    #removeElements(root, 'signalmasts')
+    #removeElements(root, 'blocks')
+    #tree.write(outputDir + 'reduced.xml')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Deconstruct a JMRI XML formatted layout description file')
