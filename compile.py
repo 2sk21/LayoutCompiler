@@ -163,24 +163,28 @@ def loadLightFile(fileName, root, elementCounter):
                     lightcontrolX.attrib['controlSensor'] = controlSensor
                     lightcontrolX.attrib['sensorSense'] = sensorSense
 
-def loadSignalHeads(fileName, root, elementCounter):
-    with open(fileName, 'r') as inputFile:
+def loadSignalHeads(inputDir, root, elementCounter):
+    signalHeadsX = ET.Element('signalheads')
+    root.insert(elementCounter, signalHeadsX)
+    with open(inputDir + 'signalheads_tripleturnout.csv', 'r') as inputFile:
         signalHeadsReader = csv.reader(inputFile)
-        signalHeadsX = ET.Element('signalheads')
-        root.insert(elementCounter, signalHeadsX)
         for row in signalHeadsReader:
             if row[0] == 'class':
                 signalHeadsX.attrib['class'] = row[1]
             elif row[0] == 'signalhead':
                 systemName = row[1]
                 userName = row[2]
-                green = row[3]
-                yellow = row[4]
-                red = row[5]
+                comment = row[3]
+                green = row[4]
+                yellow = row[5]
+                red = row[6]
                 signalHeadX = ET.SubElement(signalHeadsX, 'signalhead')
+                signalHeadX.attrib['class'] = 'jmri.implementation.configurexml.TripleTurnoutSignalHeadXml'
                 ET.SubElement(signalHeadX, 'systemName').text = systemName
                 if userName != '':
                     ET.SubElement(signalHeadX, 'userName').text = userName
+                if comment != '':
+                    ET.SubElement(signalHeadX, 'comment').text = comment
                 if green != '':
                     turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
                     turnoutnameX.text = green
@@ -193,6 +197,38 @@ def loadSignalHeads(fileName, root, elementCounter):
                     turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
                     turnoutnameX.text = red
                     turnoutnameX.attrib['defines'] = 'red'
+    with open(inputDir + 'signalheads_singleturnout.csv', 'r') as inputFile:
+        signalHeadsReader = csv.reader(inputFile)
+        for row in signalHeadsReader:
+            if row[0] == 'class':
+                signalHeadsX.attrib['class'] = row[1]
+            elif row[0] == 'signalhead':
+                systemName = row[1]
+                userName = row[2]
+                comment = row[3]
+                thrown = row[4]
+                closed = row[5]
+                aspect = row[6]
+                signalHeadX = ET.SubElement(signalHeadsX, 'signalhead')
+                signalHeadX.attrib['class'] = 'jmri.implementation.configurexml.SingleTurnoutSignalHeadXml'
+                ET.SubElement(signalHeadX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(signalHeadX, 'userName').text = userName
+                if comment != '':
+                    ET.SubElement(signalHeadX, 'comment').text = comment
+                if thrown != '':
+                    appearanceX = ET.SubElement(signalHeadX, 'appearance')
+                    appearanceX.text = thrown
+                    appearanceX.attrib['defines'] = 'thrown'
+                if closed != '':
+                    appearanceX = ET.SubElement(signalHeadX, 'appearance')
+                    appearanceX.text = closed
+                    appearanceX.attrib['defines'] = 'closed'
+                if aspect != '':
+                    turnoutnameX = ET.SubElement(signalHeadX, 'turnoutname')
+                    turnoutnameX.text = aspect
+                    turnoutnameX.attrib['defines'] = 'aspect'
+
 
 def loadSignalMasts(fileName, root, elementCounter):
     with open(fileName, 'r') as inputFile:
@@ -320,7 +356,7 @@ def main(args):
 
     elementCounter += 1 # Skip past the memories tag
 
-    loadSignalHeads(inputDir + 'signalheads.csv', root, elementCounter)
+    loadSignalHeads(inputDir, root, elementCounter)
     elementCounter += 1
 
     loadSignalMasts(inputDir + 'signalmasts.csv', root, elementCounter)
