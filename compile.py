@@ -239,17 +239,20 @@ def loadSignalMasts(fileName, root, elementCounter):
             if row[0] == 'class':
                 signalMastsX.attrib['class'] = row[1]
             elif row[0] == 'signalmast':
-                name = row[1]
-                unlit = row[2]
-                disabledAspects = eval(row[3])
-                systemName = 'IF$shsm:AAR-1946:SL-1-high-abs(%s)' % name
-                userName = 'G-' + name
+                systemName = row[1]
+                userName = row[2].strip()
+                unlit = row[3]
+                da = row[4].strip()
+                if da == '':
+                    disabledAspects = []
+                else:
+                    disabledAspects = eval(row[4])
                 signalMastX = ET.SubElement(signalMastsX, 'signalmast')
                 signalMastX.attrib['class'] = 'jmri.implementation.configurexml.SignalHeadSignalMastXml'
                 ET.SubElement(signalMastX, 'systemName').text = systemName
-                ET.SubElement(signalMastX, 'unlit').attrib['allowed'] = unlit
                 if userName != '':
                     ET.SubElement(signalMastX, 'userName').text = userName
+                ET.SubElement(signalMastX, 'unlit').attrib['allowed'] = unlit
                 if len(disabledAspects) > 0:
                     disabledAspectsX = ET.SubElement(signalMastX, 'disabledAspects')
                     for d in disabledAspects:
