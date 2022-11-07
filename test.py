@@ -10,9 +10,21 @@ import csv
 import re
 import argparse
 
+def getSensorBySystemName(root, systemName):
+    queryString = ".sensors/sensor/systemName[.='%s']/.." % systemName
+    sensors = root.findall(queryString)
+    return sensors[0]
+
 def main(args):
     print(args.layoutFile)
     print(args.updatedLayoutFile)
+    originalTree = ET.parse(args.layoutFile)
+    originalRoot = originalTree.getroot()
+    updatedTree = ET.parse(args.updatedLayoutFile)
+    updatedRoot = updatedTree.getroot()
+
+
+    sensorX = getSensorBySystemName(originalRoot, 'C3S4010')
 
 
 if __name__ == '__main__':
