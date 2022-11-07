@@ -267,6 +267,7 @@ def extractBlocks(blocksX, outputDir):
         for child in blocksX:
             if child.tag == 'defaultspeed':
                 row = [ 'defaultspeed', child.text ]
+                tablewriter.writerow(row)
             elif child.tag == 'block':
                 blockX = child
                 # Block elements are present in duplicate to break circularity in the code

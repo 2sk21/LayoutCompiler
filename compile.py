@@ -268,7 +268,7 @@ def loadBlocks(fileName, root, elementCounter):
             if row[0] == 'class':
                 blocksX.attrib['class'] = row[1]
             elif row[0] == 'defaultspeed':
-                blocksX.attrib['defaultspeed'] = row[1]
+                ET.SubElement(blocksX, 'defaultspeed').text = row[1]
             elif row[0] == 'block':
                 systemName = row[1]
                 userName = row[2]
