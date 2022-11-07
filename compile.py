@@ -260,20 +260,18 @@ def loadSignalMasts(fileName, root, elementCounter):
 
 def loadBlocks(fileName, root, elementCounter):
     blocksX = ET.Element('blocks')
+    root.insert(elementCounter, blocksX)
     # Create forward reference blocks
     with open(fileName, 'r') as inputFile:
         blocksReader = csv.reader(inputFile)
-        root.insert(elementCounter, blocksX)
         for row in blocksReader:
             if row[0] == 'class':
                 blocksX.attrib['class'] = row[1]
+            elif row[0] == 'defaultspeed':
+                blocksX.attrib['defaultspeed'] = row[1]
             elif row[0] == 'block':
                 systemName = row[1]
                 userName = row[2]
-                length = row[3]
-                curve = row[4]
-                comment = row[5]
-                permissive = row[6]
                 blockX = ET.SubElement(blocksX, 'block')
                 blockX.attrib['systemName'] = systemName
                 ET.SubElement(blockX, 'systemName').text = systemName
@@ -282,7 +280,6 @@ def loadBlocks(fileName, root, elementCounter):
     # Now create the full blocks
     with open(fileName, 'r') as inputFile:
         blocksReader = csv.reader(inputFile)
-        root.insert(elementCounter, blocksX)
         for row in blocksReader:
             if row[0] == 'block':
                 systemName = row[1]

@@ -264,26 +264,30 @@ def extractBlocks(blocksX, outputDir):
         tablewriter.writerow(row)
         row = [ 'class', blocksX.attrib['class']]
         tablewriter.writerow(row)
-        for blockX in blocksX:
-            # Block elements are present in duplicate to break circularity in the code
-            # Only the instance with the permissive child element needs to be considered
-            permissiveX = blockX.find('permissive')
-            if permissiveX != None:
-                length = blockX.attrib['length']
-                curve = blockX.attrib['curve']
-                systemName = blockX.find('systemName').text
-                userName = ''
-                userNameX = blockX.find('userName')
-                if userNameX != None:
-                    userName = userNameX.text
-                comment = ''
-                commentX = blockX.find('comment')
-                if commentX != None:
-                    comment = commentX.text
-                permissive = permissiveX.text
-                occupancySensor = getOptionalElement(blockX, 'occupancysensor')
-                row = ['block', systemName, userName, length, curve, comment, permissive, occupancySensor]
-                tablewriter.writerow(row)
+        for child in blocksX:
+            if child.tag == 'defaultspeed':
+                row = [ 'defaultspeed', child.text ]
+            elif child.tag == 'block':
+                blockX = child
+                # Block elements are present in duplicate to break circularity in the code
+                # Only the instance with the permissive child element needs to be considered
+                permissiveX = blockX.find('permissive')
+                if permissiveX != None:
+                    length = blockX.attrib['length']
+                    curve = blockX.attrib['curve']
+                    systemName = blockX.find('systemName').text
+                    userName = ''
+                    userNameX = blockX.find('userName')
+                    if userNameX != None:
+                        userName = userNameX.text
+                    comment = ''
+                    commentX = blockX.find('comment')
+                    if commentX != None:
+                        comment = commentX.text
+                    permissive = permissiveX.text
+                    occupancySensor = getOptionalElement(blockX, 'occupancysensor')
+                    row = ['block', systemName, userName, length, curve, comment, permissive, occupancySensor]
+                    tablewriter.writerow(row)
 
 def extractXMLblob(root, filename, outputDir):
     with open(outputDir + filename, 'w') as outFile:
