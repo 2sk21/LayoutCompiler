@@ -52,9 +52,9 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                     row = [ 'globalDebounceTimers', sensorX.find('goingActive').text, sensorX.find('goingInActive').text]
                     tablewriter.writerow(row)
                 elif sensorX.tag == "sensor":
-                    inverted = False
-                    if "inverted" in sensorX.attrib:
-                        inverted = sensorX.attrib['inverted'] == "true"
+                    inverted = 'false'
+                    if 'inverted' in sensorX.attrib:
+                        inverted = sensorX.attrib['inverted']
                     systemName = ''
                     userName = ''
                     comment = ''
@@ -68,7 +68,7 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                             comment = t.text
                         elif t.tag == 'useGlobalDebounceTimer':
                             useGlobalDebounceTimer = t.text
-                    tablewriter.writerow(['sensor', str(systemName), str(userName), str(inverted), comment, useGlobalDebounceTimer])
+                    tablewriter.writerow(['sensor', systemName, userName, inverted, comment, useGlobalDebounceTimer])
     else:
         print('Could not determine file name for sensors ' + sensorSetCounter)
 
