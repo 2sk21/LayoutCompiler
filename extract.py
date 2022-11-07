@@ -30,9 +30,9 @@ def getFileName(sensorsX, setCounter, objectName):
     y = x.match(sn)
     busName = y.groups()[0]
     if sensorSubType:
-        return sensorType + '_' + sensorSubType + '_' + busName + '_' + str(setCounter) + ".csv"
+        return sensorType + '_' + sensorSubType + '_' + busName + ".csv"
     else:
-        return sensorType + '_' + busName + '_' + str(setCounter) + ".csv"
+        return sensorType + '_' + busName + ".csv"
 
 def extractSensors(sensorsX, sensorSetCounter, outputDir):
     sensorFileName = getFileName(sensorsX, sensorSetCounter, 'sensor')
