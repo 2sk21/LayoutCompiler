@@ -18,8 +18,20 @@ def getSensorBySystemName(root, systemName):
     else:
         return sensors[0]
 
+def getTurnoutBySystemName(root, systemName):
+    queryString = ".turnouts/turnout/systemName[.='%s']/.." % systemName
+    sensors = root.findall(queryString)
+    if len(sensors) != 1:
+        return None
+    else:
+        return sensors[0]
+
 def getAllSensors(root):
     queryString = ".sensors/sensor"
+    return root.findall(queryString)
+
+def getAllTurnouts(root):
+    queryString = ".turnouts/turnout"
     return root.findall(queryString)
 
 def sensorsMismatch(original, updated):
@@ -35,13 +47,7 @@ def sensorsMismatch(original, updated):
         return True
     return False
 
-def main(args):
-    print('Original file: ', args.originalFile, 'Updated file:', args.updatedFile)
-    originalTree = ET.parse(args.originalFile)
-    originalRoot = originalTree.getroot()
-    updatedTree = ET.parse(args.updatedFile)
-    updatedRoot = updatedTree.getroot()
-
+def sensorsAreOk(originalRoot, updatedRoot):
     originalSensors = getAllSensors(originalRoot)
     updatedSensors = getAllSensors(updatedRoot)
     if len(originalSensors) != len(updatedSensors):
@@ -49,14 +55,24 @@ def main(args):
     print('Num sensors matches', len(originalSensors))
     for originalSensor in originalSensors:
         originalSystemName = originalSensor.find('systemName').text
+        print('Checking sensor ', originalSystemName)
         updatedSensor = getSensorBySystemName(updatedRoot, originalSystemName)
         if updatedSensor == None:
             print('Error missing sensor in update: ', originalSystemName)
-            return
+            return False
         elif sensorsMismatch(originalSensor, updatedSensor):
             print('Sensor mismatch', originalSystemName)
-            return
+            return False
+    return True
 
+def main(args):
+    print('Original file: ', args.originalFile, 'Updated file:', args.updatedFile)
+    originalTree = ET.parse(args.originalFile)
+    originalRoot = originalTree.getroot()
+    updatedTree = ET.parse(args.updatedFile)
+    updatedRoot = updatedTree.getroot()
+    if not sensorsAreOk(originalRoot, updatedRoot):
+        return
     print('Test passed')
 
 if __name__ == '__main__':
