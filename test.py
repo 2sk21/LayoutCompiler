@@ -6,9 +6,33 @@
 # Compare the original layout.xml with result of round trip through extract and compile
 
 import xml.etree.ElementTree as ET
-import csv
-import re
 import argparse
+
+def attributeMatches(original, updated, attributeName):
+    if attributeName in original.attrib:
+        if attributeName in updated.attrib:
+            return original.attrib[attributeName] == updated.attrib[attributeName]
+        else:
+            return False
+    else:
+        if attributeName in updated.attrib:
+            return False
+        else:
+            return True
+
+def optionalTagMatches(original, updated, tagName):
+    originalChild = original.find(tagName)
+    updatedChild = updated.find(tagName)
+    if originalChild == None:
+        if updatedChild == None:
+            return True
+        else:
+            return False
+    else:
+        if updatedChild == None:
+            return False
+        else:
+            return originalChild.text == updatedChild.text
 
 def getSensorBySystemName(root, systemName):
     queryString = ".sensors/sensor/systemName[.='%s']/.." % systemName
@@ -34,24 +58,20 @@ def getAllTurnouts(root):
     queryString = ".turnouts/turnout"
     return root.findall(queryString)
 
-def sensorsMismatch(original, updated):
-    if original.attrib['inverted'] != updated.attrib['inverted']:
-        return True
-    originalUserNameX = original.find('userName')
-    updatedUserNameX = updated.find('userName')
-    if (originalUserNameX != None) and (updatedUserNameX != None) and (originalUserNameX.text != updatedUserNameX.text):
-        return True
-    originalCommentX = original.find('comment')
-    updatedCommentX = updated.find('comment')
-    if (originalCommentX != None) and (updatedCommentX != None) and (originalCommentX.text != updatedCommentX.text):
-        return True
-    return False
+def sensorMatches(original, updated):
+    if not attributeMatches(original, updated, 'inverted'):
+        return False
+    if not optionalTagMatches(original, updated, 'userName'):
+        return False
+    return optionalTagMatches(original, updated, 'comment')
 
-def sensorsAreOk(originalRoot, updatedRoot):
+
+def sensorsMatch(originalRoot, updatedRoot):
     originalSensors = getAllSensors(originalRoot)
     updatedSensors = getAllSensors(updatedRoot)
     if len(originalSensors) != len(updatedSensors):
-        return 'Error: number of sensors do not match'
+        print('Error: number of sensors do not match')
+        return False
     print('Num sensors matches', len(originalSensors))
     for originalSensor in originalSensors:
         originalSystemName = originalSensor.find('systemName').text
@@ -60,9 +80,49 @@ def sensorsAreOk(originalRoot, updatedRoot):
         if updatedSensor == None:
             print('Error missing sensor in update: ', originalSystemName)
             return False
-        elif sensorsMismatch(originalSensor, updatedSensor):
+        elif not sensorMatches(originalSensor, updatedSensor):
             print('Sensor mismatch', originalSystemName)
             return False
+    return True
+
+def turnoutMatches(original, updated):
+    if not attributeMatches(original, updated, 'feedback'):
+        return False
+    if not attributeMatches(original, updated, 'inverted'):
+        return False
+    if not attributeMatches(original, updated, 'automate'):
+        return False
+    if not attributeMatches(original, updated, 'controlType'):
+        return False
+    if not attributeMatches(original, updated, 'sensor1'):
+        return False
+    if not attributeMatches(original, updated, 'sensor2'):
+        return False
+    if not optionalTagMatches(original, updated, 'userName'):
+        return False
+    if not optionalTagMatches(original, updated, 'comment'):
+        return False
+    return True
+    
+
+def turnoutsMatch(originalRoot, updatedRoot):
+    originalTurnouts = getAllTurnouts(originalRoot)
+    updatedTurnouts = getAllTurnouts(updatedRoot)
+    if len(originalTurnouts) != len(updatedTurnouts):
+        print('Number of turnouts do not match')
+        return False
+    print('Num turnouts matches', len(originalTurnouts))
+    for originalTurnout in originalTurnouts:
+        originalSystemName = originalTurnout.find('systemName').text
+        print('Checking turnout', originalSystemName)
+        updatedTurnout = getTurnoutBySystemName(originalRoot, originalSystemName)
+        if updatedTurnout == None:
+            print('Missing updated turnout')
+            return False
+        elif not turnoutMatches(originalTurnout, updatedTurnout):
+            print('Turnout mismatch', originalSystemName)
+            return False
+        
     return True
 
 def main(args):
@@ -71,7 +131,9 @@ def main(args):
     originalRoot = originalTree.getroot()
     updatedTree = ET.parse(args.updatedFile)
     updatedRoot = updatedTree.getroot()
-    if not sensorsAreOk(originalRoot, updatedRoot):
+    if not sensorsMatch(originalRoot, updatedRoot):
+        return
+    if not turnoutsMatch(originalRoot, updatedRoot):
         return
     print('Test passed')
 
