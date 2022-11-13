@@ -44,18 +44,30 @@ def getSensorBySystemName(root, systemName):
 
 def getTurnoutBySystemName(root, systemName):
     queryString = ".turnouts/turnout/systemName[.='%s']/.." % systemName
-    sensors = root.findall(queryString)
-    if len(sensors) != 1:
+    turnouts = root.findall(queryString)
+    if len(turnouts) != 1:
         return None
     else:
-        return sensors[0]
+        return turnouts[0]
+
+def getLightBySystemName(root, systemName):
+    queryString = ".lights/light/systemName[.='%s']/.." % systemName
+    lights = root.findall(queryString)
+    if len(lights) != 1:
+        return None
+    else:
+        return lights[0]
 
 def getAllSensors(root):
-    queryString = ".sensors/sensor"
+    queryString = '.sensors/sensor'
     return root.findall(queryString)
 
 def getAllTurnouts(root):
-    queryString = ".turnouts/turnout"
+    queryString = '.turnouts/turnout'
+    return root.findall(queryString)
+
+def getAllLights(root):
+    queryString = '.lights/light'
     return root.findall(queryString)
 
 def sensorMatches(original, updated):
@@ -64,7 +76,6 @@ def sensorMatches(original, updated):
     if not optionalTagMatches(original, updated, 'userName'):
         return False
     return optionalTagMatches(original, updated, 'comment')
-
 
 def sensorsMatch(originalRoot, updatedRoot):
     originalSensors = getAllSensors(originalRoot)
@@ -122,7 +133,62 @@ def turnoutsMatch(originalRoot, updatedRoot):
         elif not turnoutMatches(originalTurnout, updatedTurnout):
             print('Turnout mismatch', originalSystemName)
             return False
-        
+    return True
+
+def lightMatches(originalLight, updatedLight):
+    if not attributeMatches(originalLight, updatedLight, 'minIntensity'):
+        return False
+    if not attributeMatches(originalLight, updatedLight, 'maxIntensity'):
+        return False
+    if not attributeMatches(originalLight, updatedLight, 'transitionTime'):
+        return False
+    if not optionalTagMatches(originalLight, updatedLight, 'userName'):
+        return False
+    if not optionalTagMatches(originalLight, updatedLight, 'comment'):
+        return False
+    originalLightcontrol = originalLight.find('lightcontrol')
+    updatedLightcontrol = updatedLight.find('lightcontrol')
+    if originalLightcontrol is None:
+        if updatedLightcontrol is None:
+            pass
+        else:
+            return False
+    else:
+        if updatedLightcontrol is None:
+            return False
+        else:
+            if not attributeMatches(originalLightcontrol, updatedLightcontrol, 'controlType'):
+                return False
+            if not attributeMatches(originalLightcontrol, updatedLightcontrol, 'controlSensor'):
+                return False
+            if not attributeMatches(originalLightcontrol, updatedLightcontrol, 'sensorSense'):
+                return False
+    return True
+
+def lightsMatch(originalRoot, updatedRoot):
+    originalLights = getAllLights(originalRoot)
+    updatedLights = getAllLights(updatedRoot)
+    numOriginalLights = len(originalLights)
+    numUpdatedLights = len(updatedLights)
+    if numOriginalLights != numUpdatedLights:
+        print('Number of lights do not match', numOriginalLights, numUpdatedLights)
+        originalSet = set(originalLights)
+        updatedSet = set(updatedLights)
+        differenceSet = originalSet.difference(updatedSet)
+        for e in differenceSet:
+            print(e.find('systemName').text)
+        return False
+    print('Num lights matches', len(originalLights))
+    for originalLight in originalLights:
+        originalSystemName = originalLight.find('systemName').text
+        print('Checking light', originalSystemName)
+        updatedLight = getLightBySystemName(originalRoot, originalSystemName)
+        if updatedLight == None:
+            print('Missing updated light')
+            return False
+        elif not lightMatches(originalLight, updatedLight):
+            print('Turnout mismatch', originalSystemName)
+            return False
     return True
 
 def main(args):
@@ -134,6 +200,8 @@ def main(args):
     if not sensorsMatch(originalRoot, updatedRoot):
         return
     if not turnoutsMatch(originalRoot, updatedRoot):
+        return
+    if not lightsMatch(originalRoot, updatedRoot):
         return
     print('Test passed')
 

@@ -331,16 +331,10 @@ def main(args):
     # Get a list of the CSV files for sensors, turnouts and lights
     p = Path(inputDir)
     csvf = list(p.glob('*.csv'))
-    sensorFileNames = [ str(x) for x in csvf if str(x).find('S') > 0 ]
-    turnoutFileNames = [ str(x) for x in csvf if str(x).find('T') > 0 ]
-    #lightsFileNames = [ str(x) for x in csvf if str(x).find('L') > 0 ]
-
-    lightsFileNames = []
-    p = re.compile(r'C\d*L')
-    for x in csvf:
-        fileName = str(x)
-        if p.search(fileName) != None:
-            lightsFileNames.append(fileName)
+    fileNames = [ str(x) for x in csvf ]
+    sensorFileNames = [ x for x in fileNames if x.find('sensor') > 0 ]
+    turnoutFileNames = [ x for x in fileNames if x.find('turnout') > 0 ]
+    lightsFileNames = [ x for x in fileNames if x.find('light') > 0 ]
 
     for sensorFileName in sensorFileNames:
         loadSensorFile(sensorFileName, root, elementCounter)

@@ -16,26 +16,25 @@ def getOptionalElement(parent, tagname):
     else:
         return ''
 
-
-def getFileName(sensorsX, setCounter, objectName):
-    className = sensorsX.attrib['class']
+def getFileName(objectsX, objectName):
+    className = objectsX.attrib['class']
     comps = className.split('.')
-    sensorType = comps[2]
-    sensorSubType = ''
-    if sensorType == 'cmri':
-        sensorSubType = comps[3]
-    firstSensor = sensorsX.find(objectName)
-    sn = firstSensor.find('systemName').text
+    connectionType = comps[2] # cmri, internal, Loconet etc
+    objectSubType = ''
+    if connectionType == 'cmri':
+        objectSubType = comps[3]
+    firstObject = objectsX.find(objectName)
+    sn = firstObject.find('systemName').text
     x = re.compile(r'(\S*?)\d+$')
     y = x.match(sn)
     busName = y.groups()[0]
-    if sensorSubType:
-        return sensorType + '_' + sensorSubType + '_' + busName + ".csv"
+    if objectSubType:
+        return objectName + '_' + connectionType + '_' + objectSubType + '_' + busName + ".csv"
     else:
-        return sensorType + '_' + busName + ".csv"
+        return objectName + '_' + connectionType + '_' + busName + ".csv"
 
-def extractSensors(sensorsX, sensorSetCounter, outputDir):
-    sensorFileName = getFileName(sensorsX, sensorSetCounter, 'sensor')
+def extractSensors(sensorsX, outputDir):
+    sensorFileName = getFileName(sensorsX, 'sensor')
     if sensorFileName:
         with open(outputDir + sensorFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
@@ -70,10 +69,10 @@ def extractSensors(sensorsX, sensorSetCounter, outputDir):
                             useGlobalDebounceTimer = t.text
                     tablewriter.writerow(['sensor', systemName, userName, inverted, comment, useGlobalDebounceTimer])
     else:
-        print('Could not determine file name for sensors ' + sensorSetCounter)
+        print('Could not determine file name for sensors')
 
-def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
-    turnoutFileName = getFileName(turnoutsX, turnoutSetCounter, 'turnout')
+def extractTurnouts(turnoutsX, outputDir):
+    turnoutFileName = getFileName(turnoutsX, 'turnout')
     if turnoutFileName:
         with open(outputDir + turnoutFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
@@ -150,8 +149,8 @@ def extractTurnouts(turnoutsX, turnoutSetCounter, outputDir):
                         ]
                     tablewriter.writerow(row)
 
-def extractLights(lightsX, lightSetCounter, outputDir):
-    lightFileName = getFileName(lightsX, lightSetCounter, 'light')
+def extractLights(lightsX, outputDir):
+    lightFileName = getFileName(lightsX, 'light')
     if lightFileName:
         with open(outputDir + lightFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
@@ -304,22 +303,16 @@ def main(args):
     ifn = args.inputFile
     tree = ET.parse(ifn)
     root = tree.getroot()
-    sensorSetCounter = 0
-    turnoutSetCounter = 0
-    lightSetCounter = 0
     outputDir = args.csvDir
     if not outputDir.endswith('/'):
         outputDir = outputDir + '/'
     for child in root:
         if child.tag == "sensors":
-            sensorSetCounter += 1
-            extractSensors(child, sensorSetCounter, outputDir)
+            extractSensors(child, outputDir)
         elif child.tag == 'turnouts':
-            turnoutSetCounter += 1
-            extractTurnouts(child, turnoutSetCounter, outputDir)
+            extractTurnouts(child, outputDir)
         elif child.tag == 'lights':
-            lightSetCounter += 1
-            extractLights(child, lightSetCounter, outputDir)
+            extractLights(child, outputDir)
         elif child.tag == 'signalheads':
             extractSignalHeads(child, outputDir)
         elif child.tag == 'signalmasts':
