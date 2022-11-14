@@ -34,6 +34,18 @@ def optionalTagMatches(original, updated, tagName):
         else:
             return originalChild.text == updatedChild.text
 
+def optionalTagMatchesByPattern(original, updated, pattern):
+    t = original.findall(pattern)
+    u = updated.findall(pattern)
+    if len(t) != len(u):
+        return False
+    if len(t) == 1 and len(u) == 1:
+        originalChild = t[0]
+        updatedChild = u[0]
+        return originalChild.text == updatedChild.text
+    return len(t) == 0 and len(u) == 0
+
+
 def getSensorBySystemName(root, systemName):
     queryString = ".sensors/sensor/systemName[.='%s']/.." % systemName
     sensors = root.findall(queryString)
@@ -58,6 +70,14 @@ def getLightBySystemName(root, systemName):
     else:
         return lights[0]
 
+def getSignalheadBySystemName(root, systemName):
+    queryString = ".signalheads/signalhead/systemName[.='%s']/.." % systemName
+    signalheads = root.findall(queryString)
+    if len(signalheads) != 1:
+        return None
+    else:
+        return signalheads[0]
+
 def getAllSensors(root):
     queryString = '.sensors/sensor'
     return root.findall(queryString)
@@ -68,6 +88,10 @@ def getAllTurnouts(root):
 
 def getAllLights(root):
     queryString = '.lights/light'
+    return root.findall(queryString)
+
+def getAllSignalheads(root):
+    queryString = '.signalheads/signalhead'
     return root.findall(queryString)
 
 def sensorMatches(original, updated):
@@ -187,7 +211,54 @@ def lightsMatch(originalRoot, updatedRoot):
             print('Missing updated light')
             return False
         elif not lightMatches(originalLight, updatedLight):
-            print('Turnout mismatch', originalSystemName)
+            print('Light mismatch', originalSystemName)
+            return False
+    return True
+
+def signalheadMatches(originalSignalhead, updatedSignalhead):
+    if not attributeMatches(originalSignalhead, updatedSignalhead, 'class'):
+        return False
+    if not optionalTagMatches(originalSignalhead, updatedSignalhead, 'userName'):
+        return False
+    if not optionalTagMatches(originalSignalhead, updatedSignalhead, 'comment'):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./turnoutname[@defines='green']"):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./turnoutname[@defines='yellow']"):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./turnoutname[@defines='red']"):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./appearance[@defines='thrown']"):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./appearance[@defines='closed']"):
+        return False
+    if not optionalTagMatchesByPattern(originalSignalhead, updatedSignalhead, "./turnoutname[@defines='aspect']"):
+        return False
+    return True
+
+def signalHeadsMatch(originalRoot, updatedRoot):
+    originalSignalheads = getAllSignalheads(originalRoot)
+    updatedSignalheads = getAllSignalheads(updatedRoot)
+    numOriginalSignalheads = len(originalSignalheads)
+    numUpdatedSignalheads = len(updatedSignalheads)
+    if numOriginalSignalheads != numUpdatedSignalheads:
+        print('Number of signalheads do not match', numOriginalSignalheads, numUpdatedSignalheads)
+        originalSet = set(originalSignalheads)
+        updatedSet = set(updatedSignalheads)
+        differenceSet = originalSet.difference(updatedSet)
+        for e in differenceSet:
+            print(e.find('systemName').text)
+        return False
+    print('Num signalheads match', numOriginalSignalheads)
+    for originalSignalhead in originalSignalheads:
+        originalSystemName = originalSignalhead.find('systemName').text
+        print('Checking signalhead', originalSystemName)
+        updatedSignalhead = getSignalheadBySystemName(originalRoot, originalSystemName)
+        if updatedSignalhead is None:
+            print('Missing updated signalhead')
+            return False
+        elif not signalheadMatches(originalSignalhead, updatedSignalhead):
+            print('Signalhead mismatch', originalSystemName)
             return False
     return True
 
@@ -202,6 +273,8 @@ def main(args):
     if not turnoutsMatch(originalRoot, updatedRoot):
         return
     if not lightsMatch(originalRoot, updatedRoot):
+        return
+    if not signalHeadsMatch(originalRoot, updatedRoot):
         return
     print('Test passed')
 
