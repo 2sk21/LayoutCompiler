@@ -78,6 +78,14 @@ def getSignalheadBySystemName(root, systemName):
     else:
         return signalheads[0]
 
+def getSignalmastBySystemName(root, systemName):
+    queryString = ".signalmasts/signalmast/systemName[.='%s']/.." % systemName
+    signalheads = root.findall(queryString)
+    if len(signalheads) != 1:
+        return None
+    else:
+        return signalheads[0]
+
 def getAllSensors(root):
     queryString = '.sensors/sensor'
     return root.findall(queryString)
@@ -92,6 +100,10 @@ def getAllLights(root):
 
 def getAllSignalheads(root):
     queryString = '.signalheads/signalhead'
+    return root.findall(queryString)
+
+def getAllSignalmasts(root):
+    queryString = '.signalmasts/signalmast'
     return root.findall(queryString)
 
 def sensorMatches(original, updated):
@@ -262,6 +274,72 @@ def signalHeadsMatch(originalRoot, updatedRoot):
             return False
     return True
 
+def signalmastMatches(originalSignalmast, updatedSignalmast):
+    if not optionalTagMatches(originalSignalmast, updatedSignalmast, 'userName'):
+        return False
+    if not optionalTagMatches(originalSignalmast, updatedSignalmast, 'comment'):
+        return False
+    # This is required because optionalTagMatches does not check attributes of unlit
+    originalUnlit = originalSignalmast.find('unlit')
+    updatedUnlit = updatedSignalmast.find('unlit')
+    if originalUnlit is None:
+        if updatedUnlit is None:
+            pass
+        else:
+            return False
+    else:
+        if updatedUnlit is None:
+            return False
+        else:
+            if originalUnlit.attrib['allowed'] != updatedUnlit.attrib['allowed']:
+                return False
+    originalDisabledAspects = originalSignalmast.find('disabledAspects')
+    updatedDisabledAspects = updatedSignalmast.find('disabledAspects')
+    if originalDisabledAspects is None:
+        if updatedDisabledAspects is None:
+            pass
+        else:
+            return False
+    else:
+        if updatedDisabledAspects is None:
+            return False
+        else:
+            oda = set()
+            uda = set()
+            for e in originalDisabledAspects:
+                oda.add(e.text)
+            for e in updatedDisabledAspects:
+                uda.add(e.text)
+            return oda == uda
+    
+    return True
+
+def signalMastsMatch(originalRoot, updatedRoot):
+    originalSignalmasts = getAllSignalmasts(originalRoot)
+    updatedSignalmasts = getAllSignalmasts(updatedRoot)
+    numOriginalSignalmasts = len(originalSignalmasts)
+    numUpdatedSignalmasts = len(updatedSignalmasts)
+    if numOriginalSignalmasts != numUpdatedSignalmasts:
+        print('Number of signalmasts do not match', numOriginalSignalmasts, numUpdatedSignalmasts)
+        originalSet = set(originalSignalmasts)
+        updatedSet = set(updatedSignalmasts)
+        differenceSet = originalSet.difference(updatedSet)
+        for e in differenceSet:
+            print(e.find('systemName').text)
+        return False
+    print('Num signalheads match', numOriginalSignalmasts)
+    for originalSignalmast in originalSignalmasts:
+        originalSystemName = originalSignalmast.find('systemName').text
+        print('Checking signalmast', originalSystemName)
+        updatedSignalmast = getSignalmastBySystemName(originalRoot, originalSystemName)
+        if updatedSignalmast is None:
+            print('Missing updated signalhead')
+            return False
+        elif not signalmastMatches(originalSignalmast, updatedSignalmast):
+            print('Signalmatch mismatch', originalSystemName)
+            return False
+    return True
+
 def main(args):
     print('Original file: ', args.originalFile, 'Updated file:', args.updatedFile)
     originalTree = ET.parse(args.originalFile)
@@ -275,6 +353,8 @@ def main(args):
     if not lightsMatch(originalRoot, updatedRoot):
         return
     if not signalHeadsMatch(originalRoot, updatedRoot):
+        return
+    if not signalMastsMatch(originalRoot, updatedRoot):
         return
     print('Test passed')
 
