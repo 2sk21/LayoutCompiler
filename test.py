@@ -45,7 +45,6 @@ def optionalTagMatchesByPattern(original, updated, pattern):
         return originalChild.text == updatedChild.text
     return len(t) == 0 and len(u) == 0
 
-
 def getSensorBySystemName(root, systemName):
     queryString = ".sensors/sensor/systemName[.='%s']/.." % systemName
     sensors = root.findall(queryString)
@@ -104,6 +103,10 @@ def getAllSignalheads(root):
 
 def getAllSignalmasts(root):
     queryString = '.signalmasts/signalmast'
+    return root.findall(queryString)
+
+def getAllBlocks(root):
+    queryString = '.blocks/block'
     return root.findall(queryString)
 
 def sensorMatches(original, updated):
@@ -314,7 +317,7 @@ def signalmastMatches(originalSignalmast, updatedSignalmast):
     
     return True
 
-def signalMastsMatch(originalRoot, updatedRoot):
+def signalmastsMatch(originalRoot, updatedRoot):
     originalSignalmasts = getAllSignalmasts(originalRoot)
     updatedSignalmasts = getAllSignalmasts(updatedRoot)
     numOriginalSignalmasts = len(originalSignalmasts)
@@ -340,6 +343,32 @@ def signalMastsMatch(originalRoot, updatedRoot):
             return False
     return True
 
+
+def blocksMatch(originalRoot, updatedRoot):
+    originalBlocks = getAllBlocks(originalRoot)
+    updatedBlocks = getAllBlocks(updatedRoot)
+    numOriginalBlocks = len(originalBlocks)
+    numUpdatedBlocks = len(updatedBlocks)
+    if numOriginalBlocks != numUpdatedBlocks:
+        print('Number of blocks do not match', numOriginalBlocks, numUpdatedBlocks)
+    # We can use this simplified approach for comparison because there is only one 
+    # <blocks> element and the blocks contained therein must be in the same order.
+    for (originalBlock, updatedBlock) in zip(originalBlocks, updatedBlocks):
+        print('Checking block', originalBlock.attrib['systemName'])
+        if not optionalTagMatches(originalBlock, updatedBlock, 'systemName'):
+            return False
+        if not attributeMatches(originalBlock, updatedBlock, 'systemName'):
+            return False
+        if not attributeMatches(originalBlock, updatedBlock, 'length'):
+            return False
+        if not attributeMatches(originalBlock, updatedBlock, 'curve'):
+            return False
+        if not optionalTagMatches(originalBlock, updatedBlock, 'permissive'):
+            return False
+        if not optionalTagMatches(originalBlock, updatedBlock, 'occupancySensor'):
+            return False
+    return True
+
 def main(args):
     print('Original file: ', args.originalFile, 'Updated file:', args.updatedFile)
     originalTree = ET.parse(args.originalFile)
@@ -354,7 +383,9 @@ def main(args):
         return
     if not signalHeadsMatch(originalRoot, updatedRoot):
         return
-    if not signalMastsMatch(originalRoot, updatedRoot):
+    if not signalmastsMatch(originalRoot, updatedRoot):
+        return
+    if not blocksMatch(originalRoot, updatedRoot):
         return
     print('Test passed')
 
