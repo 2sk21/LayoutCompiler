@@ -238,6 +238,7 @@ def extractSignalMasts(signalMastsX, outputDir):
         row = [ 'class', signalMastsX.attrib['class']]
         tablewriter.writerow(row)
         for signalMastX in signalMastsX:
+            mastType = signalMastX.tag
             systemName = ''
             userName = ''
             comment = ''
@@ -256,7 +257,7 @@ def extractSignalMasts(signalMastsX, outputDir):
                     for c in child:
                         disabledAspects.append(c.text)
             da = '(' + ','.join(disabledAspects) + ')'
-            row = [ 'signalmast', systemName, userName, comment, unlit, disabledAspects]
+            row = [ mastType, systemName, userName, comment, unlit, disabledAspects]
             tablewriter.writerow(row)
 
 def extractBlocks(blocksX, outputDir):
