@@ -24,6 +24,8 @@ def loadSensorFile(fileName, root, elementCounter):
         sensorsX = ET.Element('sensors')
         root.insert(elementCounter, sensorsX)
         for row in sensorReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 className = row[1]
                 sensorsX.attrib['class'] = className
@@ -59,6 +61,8 @@ def loadTurnoutFile(fileName, root, elementCounter):
         root.insert(elementCounter, turnoutsX)
         operationsX = ET.SubElement(turnoutsX, 'operations')
         for row in turnoutReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 className = row[1]
                 turnoutsX.attrib['class'] = className
@@ -135,6 +139,8 @@ def loadLightFile(fileName, root, elementCounter):
         lightsX = ET.Element('lights')
         root.insert(elementCounter, lightsX)
         for row in lightReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 lightsX.attrib['class'] = row[1]
             elif row[0] == 'light':
@@ -169,6 +175,8 @@ def loadSignalHeads(inputDir, root, elementCounter):
     with open(inputDir + 'signalheads_tripleturnout.csv', 'r') as inputFile:
         signalHeadsReader = csv.reader(inputFile)
         for row in signalHeadsReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 signalHeadsX.attrib['class'] = row[1]
             elif row[0] == 'signalhead':
@@ -200,6 +208,8 @@ def loadSignalHeads(inputDir, root, elementCounter):
     with open(inputDir + 'signalheads_singleturnout.csv', 'r') as inputFile:
         signalHeadsReader = csv.reader(inputFile)
         for row in signalHeadsReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 signalHeadsX.attrib['class'] = row[1]
             elif row[0] == 'signalhead':
@@ -236,6 +246,8 @@ def loadSignalMasts(fileName, root, elementCounter):
         signalMastsX = ET.Element('signalmasts')
         root.insert(elementCounter, signalMastsX)
         for row in signalMastsReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 signalMastsX.attrib['class'] = row[1]
             elif row[0] == 'signalmast' or row[0] == 'virtualsignalmast':
@@ -271,6 +283,8 @@ def loadBlocks(fileName, root, elementCounter):
     with open(fileName, 'r') as inputFile:
         blocksReader = csv.reader(inputFile)
         for row in blocksReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'class':
                 blocksX.attrib['class'] = row[1]
             elif row[0] == 'defaultspeed':
@@ -287,6 +301,8 @@ def loadBlocks(fileName, root, elementCounter):
     with open(fileName, 'r') as inputFile:
         blocksReader = csv.reader(inputFile)
         for row in blocksReader:
+            if len(row) == 0:
+                continue
             if row[0] == 'block':
                 systemName = row[1]
                 userName = row[2]
@@ -338,9 +354,9 @@ def main(args):
     p = Path(inputDir)
     csvf = list(p.glob('*.csv'))
     fileNames = [ str(x) for x in csvf ]
-    sensorFileNames = [ x for x in fileNames if x.find('sensor') > 0 ]
-    turnoutFileNames = [ x for x in fileNames if x.find('turnout') > 0 ]
-    lightsFileNames = [ x for x in fileNames if x.find('light') > 0 ]
+    sensorFileNames = [ x for x in fileNames if x.find('sensor_') > 0 ]
+    turnoutFileNames = [ x for x in fileNames if x.find('turnout_') > 0 ]
+    lightsFileNames = [ x for x in fileNames if x.find('light_') > 0 ]
 
     for sensorFileName in sensorFileNames:
         loadSensorFile(sensorFileName, root, elementCounter)

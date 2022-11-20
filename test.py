@@ -121,6 +121,14 @@ def sensorsMatch(originalRoot, updatedRoot):
     updatedSensors = getAllSensors(updatedRoot)
     if len(originalSensors) != len(updatedSensors):
         print('Error: number of sensors do not match')
+        originalSensorSystemNames = set()
+        updatedSensorSystemNames = set()
+        for x in originalSensors:
+            originalSensorSystemNames.add(x.find('systemName').text)
+        for x in updatedSensors:
+            updatedSensorSystemNames.add(x.find('systemName').text)
+        difference = originalSensorSystemNames.symmetric_difference(updatedSensorSystemNames)
+        print(difference)
         return False
     print('Num sensors matches', len(originalSensors))
     for originalSensor in originalSensors:
