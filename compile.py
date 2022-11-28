@@ -27,44 +27,32 @@ def loadSensorFile(fileName, root, elementCounter):
             if len(row) == 0:
                 continue
             if row[0] == 'class':
-                if len(row) == 2:
-                    className = row[1]
-                    sensorsX.attrib['class'] = className
-                else:
-                    print('Incorrect length of sensor row (expected 2)', fileName, row)
+                className = row[1]
+                sensorsX.attrib['class'] = className
             elif row[0] == 'defaultInitialState':
-                if len(row) == 2:
-                    defaultInitialState = row[1]
-                    dis = ET.SubElement(sensorsX, 'defaultInitialState')
-                    dis.text = defaultInitialState
-                else:
-                    print('Incorrect length of sensor row (expected 2)', fileName, row)
+                defaultInitialState = row[1]
+                dis = ET.SubElement(sensorsX, 'defaultInitialState')
+                dis.text = defaultInitialState
             elif row[0] == 'globalDebounceTimers':
-                if len(row) == 3:
-                    globalDebounceTimersX = ET.SubElement(sensorsX, 'globalDebounceTimers')
-                    goingActiveX = ET.SubElement(globalDebounceTimersX, 'goingActive')
-                    goingActiveX.text = row[1]
-                    goingInActiveX = ET.SubElement(globalDebounceTimersX, 'goingInActive')
-                    goingInActiveX.text = row[2]
-                else:
-                    print('Incorrect length of sensor row (expected 3)', fileName, row)
+                globalDebounceTimersX = ET.SubElement(sensorsX, 'globalDebounceTimers')
+                goingActiveX = ET.SubElement(globalDebounceTimersX, 'goingActive')
+                goingActiveX.text = row[1]
+                goingInActiveX = ET.SubElement(globalDebounceTimersX, 'goingInActive')
+                goingInActiveX.text = row[2]
             elif row[0] == 'sensor':
-                if len(row) == 6:
-                    sensorX = ET.SubElement(sensorsX, 'sensor')
-                    systemNameX = ET.SubElement(sensorX, 'systemName')
-                    systemNameX.text = row[1]
-                    if row[2].strip() != '':
-                        userNameX = ET.SubElement(sensorX, 'userName')
-                        userNameX.text = row[2]
-                    sensorX.attrib['inverted'] = row[3]
-                    if row[4].strip() != '':
-                        commentX = ET.SubElement(sensorX, 'comment')
-                        commentX.text = row[4]
-                    if row[5].strip() != '':
-                        useGlobalDebounceTimerX = ET.SubElement(sensorX, 'useGlobalDebounceTimer')
-                        useGlobalDebounceTimerX.text = row[5]
-                else:
-                    print('Incorrect length of sensor row (expected 6)', fileName, row)
+                sensorX = ET.SubElement(sensorsX, 'sensor')
+                systemNameX = ET.SubElement(sensorX, 'systemName')
+                systemNameX.text = row[1]
+                if row[2].strip() != '':
+                    userNameX = ET.SubElement(sensorX, 'userName')
+                    userNameX.text = row[2]
+                sensorX.attrib['inverted'] = row[3]
+                if row[4].strip() != '':
+                    commentX = ET.SubElement(sensorX, 'comment')
+                    commentX.text = row[4]
+                if row[5].strip() != '':
+                    useGlobalDebounceTimerX = ET.SubElement(sensorX, 'useGlobalDebounceTimer')
+                    useGlobalDebounceTimerX.text = row[5]
 
 def loadTurnoutFile(fileName, root, elementCounter):
     with open(fileName, 'r') as inputFile:
