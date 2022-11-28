@@ -76,7 +76,7 @@ def extractTurnouts(turnoutsX, outputDir):
     if turnoutFileName:
         with open(outputDir + turnoutFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
-            headings = ['Columns',  'System name', 'User name', 'Comment', 'Feedback', 'Sensor 1', 'Sensor 2', 'Inverted', 'Control type', 'Automate']
+            headings = ['Columns',  'System name', 'User name', 'Comment', 'Feedback', 'Sensor 1', 'Sensor 2', 'Inverted', 'Control type', 'Automate', 'Diverging speed', 'Straight speed' ]
             tablewriter.writerow(headings)
             row = [ 'class', turnoutsX.attrib['class']]
             tablewriter.writerow(row)
@@ -127,6 +127,16 @@ def extractTurnouts(turnoutsX, outputDir):
                     if 'controlType' in turnoutX.attrib:
                         controlType = turnoutX.attrib['controlType']
 
+                    divergingSpeed = ''
+                    divergingSpeedX = turnoutX.find('divergingSpeed')
+                    if divergingSpeedX != None:
+                        divergingSpeed = divergingSpeedX.text
+                    
+                    straightSpeed = ''
+                    straightSpeedX = turnoutX.find('straightSpeed')
+                    if straightSpeedX != None:
+                        straightSpeed = straightSpeedX.text
+
                     #propertiesL = []
                     #propertiesX = turnoutX.find('properties')
                     #if propertiesX != None:
@@ -145,7 +155,9 @@ def extractTurnouts(turnoutsX, outputDir):
                         sensor2,                        # 6
                         turnoutX.attrib['inverted'],    # 7
                         controlType,                    # 8
-                        turnoutX.attrib['automate']     # 9
+                        turnoutX.attrib['automate'],    # 9
+                        divergingSpeed,                 # 10
+                        straightSpeed                   # 11
                         ]
                     tablewriter.writerow(row)
 

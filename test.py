@@ -160,6 +160,10 @@ def turnoutMatches(original, updated):
         return False
     if not optionalTagMatches(original, updated, 'comment'):
         return False
+    if not optionalTagMatches(original, updated, 'divergingSpeed'):
+        return False
+    if not optionalTagMatches(original, updated, 'straightSpeed'):
+        return False
     return True
     
 
