@@ -379,6 +379,8 @@ def blocksMatch(originalRoot, updatedRoot):
             return False
         if not optionalTagMatches(originalBlock, updatedBlock, 'occupancySensor'):
             return False
+        if not optionalTagMatches(originalBlock, updatedBlock, 'speed'):
+            return False
     return True
 
 def main(args):

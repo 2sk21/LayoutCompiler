@@ -275,7 +275,7 @@ def extractSignalMasts(signalMastsX, outputDir):
 def extractBlocks(blocksX, outputDir):
     with open(outputDir + 'blocks.csv', 'w') as outFile:
         tablewriter = csv.writer(outFile)
-        row = [ 'Columns', 'System name', 'User name', 'length', 'curve', 'comment', 'permissive', 'Occupancy sensor']
+        row = [ 'Columns', 'System name', 'User name', 'length', 'curve', 'comment', 'permissive', 'Occupancy sensor', 'Speed']
         tablewriter.writerow(row)
         row = [ 'class', blocksX.attrib['class']]
         tablewriter.writerow(row)
@@ -302,7 +302,8 @@ def extractBlocks(blocksX, outputDir):
                         comment = commentX.text
                     permissive = permissiveX.text
                     occupancySensor = getOptionalElement(blockX, 'occupancysensor')
-                    row = ['block', systemName, userName, length, curve, comment, permissive, occupancySensor]
+                    speed = getOptionalElement(blockX, 'speed')
+                    row = ['block', systemName, userName, length, curve, comment, permissive, occupancySensor, speed]
                     tablewriter.writerow(row)
 
 def extractXMLblob(root, filename, outputDir):

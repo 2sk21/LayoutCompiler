@@ -319,6 +319,7 @@ def loadBlocks(fileName, root, elementCounter):
                 comment = row[5]
                 permissive = row[6]
                 occupancySensor = row[7]
+                speed = row[8]
                 blockX = ET.SubElement(blocksX, 'block')
                 blockX.attrib['systemName'] = systemName
                 ET.SubElement(blockX, 'systemName').text = systemName
@@ -330,6 +331,8 @@ def loadBlocks(fileName, root, elementCounter):
                     blockX.attrib['curve'] = curve
                 if comment != '':
                     ET.SubElement(blockX, 'comment').text = comment
+                if speed != '':
+                    ET.SubElement(blockX, 'speed').text = speed
                 if permissive != '':
                     ET.SubElement(blockX, 'permissive').text = permissive
                 if occupancySensor != '':
