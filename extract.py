@@ -76,7 +76,7 @@ def extractTurnouts(turnoutsX, outputDir):
     if turnoutFileName:
         with open(outputDir + turnoutFileName, 'w') as outFile:
             tablewriter = csv.writer(outFile)
-            headings = ['Columns',  'System name', 'User name', 'Comment', 'Feedback', 'Sensor 1', 'Sensor 2', 'Inverted', 'Control type', 'Automate', 'Diverging speed', 'Straight speed' ]
+            headings = ['Columns',  'System name', 'User name', 'Comment', 'Feedback', 'Sensor 1', 'Sensor 2', 'Inverted', 'Control type', 'Automate', 'Reverse speed', 'Normal speed' ]
             tablewriter.writerow(headings)
             row = [ 'class', turnoutsX.attrib['class']]
             tablewriter.writerow(row)
