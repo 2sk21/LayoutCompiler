@@ -20,6 +20,11 @@ def getFileName(objectsX, objectName):
     className = objectsX.attrib['class']
     comps = className.split('.')
     connectionType = comps[2] # cmri, internal, Loconet etc
+    if connectionType == 'rfid':
+        return objectName + '_rfid.csv'
+    elif connectionType == 'mqtt':
+        return objectName + '_mqtt.csv'
+    # Handle CMRI
     objectSubType = ''
     if connectionType == 'cmri':
         objectSubType = comps[3]
