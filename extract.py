@@ -19,7 +19,7 @@ def getOptionalElement(parent, tagname):
 def getFileName(objectsX, objectName):
     className = objectsX.attrib['class']
     comps = className.split('.')
-    connectionType = comps[2] # cmri, internal, Loconet etc
+    connectionType = comps[2] # cmri, internal, Loconet, rfid etc
     if connectionType == 'rfid':
         return objectName + '_rfid.csv'
     elif connectionType == 'mqtt':
@@ -37,6 +37,31 @@ def getFileName(objectsX, objectName):
         return objectName + '_' + connectionType + '_' + objectSubType + '_' + busName + ".csv"
     else:
         return objectName + '_' + connectionType + '_' + busName + ".csv"
+
+def extractReporters(reportersX, outputDir):
+    reporterFileName = getFileName(reportersX, 'reporter')
+    if reporterFileName:
+        with open(outputDir + reporterFileName, 'w') as outFile:
+            tablewriter = csv.writer(outFile)
+            headings = [ 'Columns', 'System name', 'User name', 'Comment']
+            tablewriter.writerow(headings)
+            row = [ 'class', reportersX.attrib['class'] ]
+            tablewriter.writerow(row)
+            for reporterX in reportersX:
+                if reporterX.tag == 'reporter':
+                    systemName = ''
+                    userName = ''
+                    comment = ''
+                    for t in reporterX:
+                        if t.tag == 'systemName':
+                            systemName = t.text
+                        elif t.tag == 'userName':
+                            userName = t.text
+                        elif t.tag == 'comment':
+                            comment = t.text
+                    tablewriter.writerow(['reporter', systemName, userName, comment])
+    else:
+        print('Could not determine file name for reporters')
 
 def extractSensors(sensorsX, outputDir):
     sensorFileName = getFileName(sensorsX, 'sensor')
@@ -341,6 +366,8 @@ def main(args):
             extractSignalMasts(child, outputDir)
         elif child.tag == 'blocks':
             extractBlocks(child, outputDir)
+        elif child.tag == 'reporters':
+            extractReporters(child, outputDir)
     # Finally, we create a reduced version of the layout config XML file with
     # the externally managed objects removed.
     # Commented this out as the reduced XML is no longer necessary (11/5/2022)
