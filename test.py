@@ -84,6 +84,14 @@ def getSignalmastBySystemName(root, systemName):
         return None
     else:
         return signalheads[0]
+    
+def getReporterBySystemName(root, systemName):
+    queryString = ".reporters/reporter/systemName[.='%s']/.." % systemName
+    reporters = root.findall(queryString)
+    if len(reporters) != 1:
+        return None
+    else:
+        return reporters[0]
 
 def getAllSensors(root):
     queryString = '.sensors/sensor'
@@ -107,6 +115,10 @@ def getAllSignalmasts(root):
 
 def getAllBlocks(root):
     queryString = '.blocks/block'
+    return root.findall(queryString)
+
+def getAllReporters(root):
+    queryString = '.reporters/reporter'
     return root.findall(queryString)
 
 def sensorMatches(original, updated):
@@ -216,6 +228,13 @@ def lightMatches(originalLight, updatedLight):
                 return False
     return True
 
+def reporterMatches(originalReporter, updatedReporter):
+    if not optionalTagMatches(originalReporter, updatedReporter, 'userName'):
+        return False
+    if not optionalTagMatches(originalReporter, updatedReporter, 'comment'):
+        return False
+    return True
+
 def lightsMatch(originalRoot, updatedRoot):
     originalLights = getAllLights(originalRoot)
     updatedLights = getAllLights(updatedRoot)
@@ -241,6 +260,33 @@ def lightsMatch(originalRoot, updatedRoot):
             print('Light mismatch', originalSystemName)
             return False
     return True
+
+def reportersMatch(originalRoot, updatedRoot):
+    originalReporters = getAllReporters(originalRoot)
+    updatedReporters = getAllReporters(updatedRoot)
+    numOriginalReporters = len(originalReporters)
+    numUpdatedReporters = len(updatedReporters)
+    if numOriginalReporters != numUpdatedReporters:
+        print('Number of reporters do not match', numOriginalReporters, numUpdatedReporters)
+        originalSet = set(originalReporters)
+        updatedSet = set(updatedReporters)
+        differenceSet = originalSet.difference(updatedSet)
+        for e in differenceSet:
+            print(e.find('systemName').text)
+        return False
+    print('Num reporters matches', len(originalReporters))
+    for originalReporter in originalReporters:
+        originalSystemName = originalReporter.find('systemName').text
+        print('Checking reporter', originalSystemName)
+        updatedReporter = getReporterBySystemName(originalRoot, originalSystemName)
+        if updatedReporter == None:
+            print('Missing updated reporter')
+            return False
+        elif not reporterMatches(originalReporter, updatedReporter):
+            print('Reporter mismatch', originalSystemName)
+            return False
+    return True
+    
 
 def signalheadMatches(originalSignalhead, updatedSignalhead):
     if not attributeMatches(originalSignalhead, updatedSignalhead, 'class'):
@@ -394,6 +440,8 @@ def main(args):
     if not turnoutsMatch(originalRoot, updatedRoot):
         return
     if not lightsMatch(originalRoot, updatedRoot):
+        return
+    if not reportersMatch(originalRoot, updatedRoot):
         return
     if not signalHeadsMatch(originalRoot, updatedRoot):
         return
