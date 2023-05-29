@@ -13,6 +13,7 @@ from pathlib import Path
 # Sensors
 # turnouts
 # lights
+# reporters
 # signalheads
 # signalmasts
 # blocks
@@ -176,6 +177,27 @@ def loadLightFile(fileName, root, elementCounter):
                     lightcontrolX.attrib['controlType'] = controlType
                     lightcontrolX.attrib['controlSensor'] = controlSensor
                     lightcontrolX.attrib['sensorSense'] = sensorSense
+
+def loadReporterFile(fileName, root, elementCounter):
+    with open(fileName, 'r') as inputFile:
+        reporterReader = csv.reader(inputFile)
+        reportersX = ET.Element('reporters')
+        root.insert(elementCounter, reportersX)
+        for row in reporterReader:
+            if len(row) == 0:
+                continue
+            elif row[0] == 'class':
+                reportersX.attrib['class'] = row[1]
+            elif row[0] == 'reporter':
+                systemName = row[1]
+                userName = row[2]
+                comment = row[3]
+                reporterX = ET.SubElement(reportersX, 'reporter')
+                ET.SubElement(reporterX, 'systemName').text = systemName
+                if userName != '':
+                    ET.SubElement(reporterX, 'userName').text = userName
+                if comment != '':
+                    ET.SubElement(reporterX, 'comment').text = comment
 
 def loadSignalHeads(inputDir, root, elementCounter):
     signalHeadsX = ET.Element('signalheads')
@@ -355,6 +377,7 @@ def main(args):
     removeElements(root, 'sensors')
     removeElements(root, 'turnouts')
     removeElements(root, 'lights')
+    removeElements(root, 'reporters')
     removeElements(root, 'signalheads')
     removeElements(root, 'signalmasts')
     removeElements(root, 'blocks')
@@ -368,6 +391,7 @@ def main(args):
     sensorFileNames = [ x for x in fileNames if x.find('sensor_') > 0 ]
     turnoutFileNames = [ x for x in fileNames if x.find('turnout_') > 0 ]
     lightsFileNames = [ x for x in fileNames if x.find('light_') > 0 ]
+    reportersFileNames = [ x for x in fileNames if x.find('reporter_') > 0 ]
 
     for sensorFileName in sensorFileNames:
         loadSensorFile(sensorFileName, root, elementCounter)
@@ -379,6 +403,10 @@ def main(args):
 
     for lightFileName in lightsFileNames:
         loadLightFile(lightFileName, root, elementCounter)
+        elementCounter += 1
+
+    for reporterFileName in reportersFileNames:
+        loadReporterFile(reporterFileName, root, elementCounter)
         elementCounter += 1
 
     elementCounter += 1 # Skip past the memories tag
