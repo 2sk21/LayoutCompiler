@@ -394,30 +394,51 @@ def main(args):
     reportersFileNames = [ x for x in fileNames if x.find('reporter_') > 0 ]
 
     for sensorFileName in sensorFileNames:
-        loadSensorFile(sensorFileName, root, elementCounter)
-        elementCounter += 1
+        try:
+            loadSensorFile(sensorFileName, root, elementCounter)
+            elementCounter += 1
+        except:
+            print('Skipping loading sensor file ' + sensorFileName)
 
     for turnoutFileName in turnoutFileNames:
-        loadTurnoutFile(turnoutFileName, root, elementCounter)
-        elementCounter += 1
+        try:
+            loadTurnoutFile(turnoutFileName, root, elementCounter)
+            elementCounter += 1
+        except:
+            print('Skipping loading turnout file ' + turnoutFileName)
 
     for lightFileName in lightsFileNames:
-        loadLightFile(lightFileName, root, elementCounter)
-        elementCounter += 1
+        try:
+            loadLightFile(lightFileName, root, elementCounter)
+            elementCounter += 1
+        except:
+            print('Skipping loading lights file ', lightFileName)
 
     for reporterFileName in reportersFileNames:
-        loadReporterFile(reporterFileName, root, elementCounter)
-        elementCounter += 1
+        try:
+            loadReporterFile(reporterFileName, root, elementCounter)
+            elementCounter += 1
+        except:
+            print('Skipping loading reporter file ' + reporterFileName)
 
     elementCounter += 1 # Skip past the memories tag
 
-    loadSignalHeads(inputDir, root, elementCounter)
-    elementCounter += 1
+    try:
+        loadSignalHeads(inputDir, root, elementCounter)
+        elementCounter += 1
+    except:
+        print('Skipping loading of signal heads')
 
-    loadSignalMasts(inputDir + 'signalmasts.csv', root, elementCounter)
-    elementCounter += 1
+    try:
+        loadSignalMasts(inputDir + 'signalmasts.csv', root, elementCounter)
+        elementCounter += 1
+    except:
+        print('Skipping loading signal masts')
 
-    loadBlocks(inputDir + 'blocks.csv', root, elementCounter)
+    try:
+        loadBlocks(inputDir + 'blocks.csv', root, elementCounter)
+    except:
+        print('Skipping loading blocks')
 
     ET.indent(tree)
     comps = args.layoutFile.split('.')
