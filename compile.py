@@ -280,7 +280,7 @@ def loadSignalMasts(fileName, root, elementCounter):
                 continue
             if row[0] == 'class':
                 signalMastsX.attrib['class'] = row[1]
-            elif row[0] == 'signalmast' or row[0] == 'virtualsignalmast':
+            elif row[0] == 'signalmast' or row[0] == 'virtualsignalmast' or row[0] == 'mqttsignalmast':
                 systemName = row[1]
                 userName = row[2].strip()
                 comment = row[3].strip()
@@ -292,9 +292,13 @@ def loadSignalMasts(fileName, root, elementCounter):
                     disabledAspects = eval(row[5])
                 if row[0] == 'signalmast':
                     signalMastX = ET.SubElement(signalMastsX, 'signalmast')
-                else:
+                    signalMastX.attrib['class'] = 'jmri.implementation.configurexml.SignalHeadSignalMastXml'
+                elif row[0] == 'virtualsignalmast':
                     signalMastX = ET.SubElement(signalMastsX, 'virtualsignalmast')
-                signalMastX.attrib['class'] = 'jmri.implementation.configurexml.SignalHeadSignalMastXml'
+                    signalMastX.attrib['class'] = 'jmri.implementation.configurexml.VirtualSignalMastXml'
+                elif row[0] == 'mqttsignalmast':
+                    signalMastX = ET.SubElement(signalMastsX, 'mqttsignalmast')
+                    signalMastX.attrib['class'] = 'jmri.jmrix.mqtt.configurexml.MqttSignalMastXml'
                 ET.SubElement(signalMastX, 'systemName').text = systemName
                 if userName != '':
                     ET.SubElement(signalMastX, 'userName').text = userName
