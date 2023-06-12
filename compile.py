@@ -131,6 +131,15 @@ def loadTurnoutFile(fileName, root, elementCounter):
                 if straightSpeed.strip() != '':
                     ET.SubElement(turnoutX, 'straightSpeed').text = straightSpeed
 
+                # Special addition for Loconet turnouts: disable sending OFF message
+                if systemName.startswith('L'):
+                    propertiesX = ET.SubElement(turnoutX, 'properties')
+                    propertyX = ET.SubElement(propertiesX, 'property')
+                    ET.SubElement(propertyX, 'key').text = 'Send ON/OFF'
+                    valueX = ET.SubElement(propertyX, 'value')
+                    valueX.attrib['class'] = 'java.lang.Boolean'
+                    valueX.text = 'false'
+
                 #propertiesS = row[10]
                 #propertiesL = eval(propertiesS)
                 #if len(propertiesL) > 0:
