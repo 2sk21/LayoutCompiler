@@ -123,14 +123,6 @@ def loadTurnoutFile(fileName, root, elementCounter):
                 automate = row[9]
                 turnoutX.attrib['automate'] = automate
 
-                divergingSpeed = row[10]
-                if divergingSpeed.strip() != '':
-                    ET.SubElement(turnoutX, 'divergingSpeed').text = divergingSpeed
-
-                straightSpeed = row[11]
-                if straightSpeed.strip() != '':
-                    ET.SubElement(turnoutX, 'straightSpeed').text = straightSpeed
-
                 # Special addition for Loconet turnouts: disable sending OFF message
                 if systemName.startswith('L'):
                     propertiesX = ET.SubElement(turnoutX, 'properties')
@@ -139,6 +131,14 @@ def loadTurnoutFile(fileName, root, elementCounter):
                     valueX = ET.SubElement(propertyX, 'value')
                     valueX.attrib['class'] = 'java.lang.Boolean'
                     valueX.text = 'false'
+
+                divergingSpeed = row[10]
+                if divergingSpeed.strip() != '':
+                    ET.SubElement(turnoutX, 'divergingSpeed').text = divergingSpeed
+
+                straightSpeed = row[11]
+                if straightSpeed.strip() != '':
+                    ET.SubElement(turnoutX, 'straightSpeed').text = straightSpeed
 
                 #propertiesS = row[10]
                 #propertiesL = eval(propertiesS)
