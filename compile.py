@@ -355,6 +355,8 @@ def loadBlocks(fileName, root, elementCounter):
                 permissive = row[6]
                 occupancySensor = row[7]
                 speed = row[8]
+                reporterSystemName = row[9]
+                reporterUseCurrent = row[10]
                 blockX = ET.SubElement(blocksX, 'block')
                 blockX.attrib['systemName'] = systemName
                 ET.SubElement(blockX, 'systemName').text = systemName
@@ -372,6 +374,10 @@ def loadBlocks(fileName, root, elementCounter):
                     ET.SubElement(blockX, 'permissive').text = permissive
                 if occupancySensor != '':
                     ET.SubElement(blockX, 'occupancysensor').text = occupancySensor
+                if reporterSystemName != '':
+                    reporterX = ET.SubElement(blockX, 'reporter')
+                    reporterX.attrib['systemName'] = reporterSystemName
+                    reporterX.attrib['useCurrent'] = reporterUseCurrent
 
 def removeElements(root, tagName):
     elements = root.findall(tagName)
